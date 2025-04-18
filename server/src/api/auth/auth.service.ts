@@ -28,8 +28,8 @@ export class AuthService {
       type = 'signup';
     }
 
-    const accessToken = await this.generateAccessToken(hashedUID);
-    const refreshToken = await this.generateRefreshToken(hashedUID);
+    const accessToken = await this.generateAccessToken(req.user.id);
+    const refreshToken = await this.generateRefreshToken(req.user.id);
 
     return { type, accessToken, refreshToken };
   }
