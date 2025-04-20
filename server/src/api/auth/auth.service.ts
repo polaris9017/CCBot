@@ -14,24 +14,20 @@ export class AuthService {
   ) {}
 
   async OAuthLogin(req) {
-    let type = 'login';
-
     //회원 조회
-    const user = this.userService.findOne(req.user.id);
+    const user = await this.userService.findUserByUID(req.user.id);
 
     // 정보 없을 시 자동가입
-    const hashedUID = await this.hashValue(req.user.id);
     if (!user) {
-      this.userService.create({
-        uid: hashedUID,
+      await this.userService.createUser({
+        uid: req.user.id,
       });
-      type = 'signup';
     }
 
-    const accessToken = await this.generateAccessToken(hashedUID);
-    const refreshToken = await this.generateRefreshToken(hashedUID);
+    const accessToken = await this.generateAccessToken(req.user.id);
+    const refreshToken = await this.generateRefreshToken(req.user.id);
 
-    return { type, accessToken, refreshToken };
+    return { accessToken, refreshToken };
   }
 
   private async hashValue(value: string) {
@@ -54,9 +50,11 @@ export class AuthService {
       id: userId,
     };
 
-    return await this.jwtService.signAsync(payload, {
-      secret: this.configService.get<string>('REFRESH_TOKEN_SECRET_KEY'),
-      expiresIn: this.configService.get<string>('REFRESH_TOKEN_EXPIRES_IN'),
-    });
+    return await this.hashValue(
+      await this.jwtService.signAsync(payload, {
+        secret: this.configService.get<string>('REFRESH_TOKEN_SECRET_KEY'),
+        expiresIn: this.configService.get<string>('REFRESH_TOKEN_EXPIRES_IN'),
+      })
+    );
   }
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Req, Res, HttpStatus, HttpCode } from '@nestjs/common';
+import { Controller, Get, UseGuards, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { NaverAuthGuard } from './guard/naver.auth.guard';
@@ -16,8 +16,8 @@ export class AuthController {
   @Get('login/callback')
   @UseGuards(NaverAuthGuard)
   async loginCallback(@Req() req: Request, @Res() res: Response) {
-    const { type, accessToken, refreshToken } = await this.authService.OAuthLogin(req);
+    const { accessToken, refreshToken } = await this.authService.OAuthLogin(req);
 
-    res.json({ type, accessToken, refreshToken });
+    res.json({ access_token: accessToken, refresh_token: refreshToken });
   }
 }
