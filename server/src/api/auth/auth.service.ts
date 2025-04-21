@@ -14,7 +14,7 @@ export class AuthService {
     private readonly userService: UserService
   ) {}
 
-  async naverOAuthLogin(req) {
+  async validateNaver(req) {
     //회원 조회
     const user = await this.userService.findUserByUID(req.user.id);
 
@@ -33,7 +33,7 @@ export class AuthService {
     return { uid: user?.uid ?? this.generateUserId(req.user.id), accessToken, refreshToken };
   }
 
-  chzzkOAuthLogin(req) {
+  validateChzzk(req) {
     const accessToken = req.content.accessToken;
     const refreshToken = req.content.refreshToken;
 
