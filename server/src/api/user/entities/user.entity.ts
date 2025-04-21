@@ -6,5 +6,8 @@ export class User extends BaseEntity {
   id: number;
 
   @Column({ type: 'varchar', length: 100, nullable: false })
+  naverUid: string;
+
+  @Column({ type: 'varchar', length: 8, nullable: false })
   uid: string;
 }

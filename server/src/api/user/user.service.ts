@@ -12,14 +12,14 @@ export class UserService {
   ) {}
 
   async createUser(createUserDto: CreateUserDto) {
-    const { uid } = createUserDto;
+    const { naverUid, uid } = createUserDto;
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
-      const user = this.userRepository.create({ uid });
+      const user = this.userRepository.create({ naverUid, uid });
       await queryRunner.manager.save(user);
 
       await queryRunner.commitTransaction();
@@ -34,7 +34,7 @@ export class UserService {
   async findUserByUID(id: string) {
     const user = await this.userRepository.findOne({
       where: {
-        uid: id,
+        naverUid: id,
       },
     });
 
