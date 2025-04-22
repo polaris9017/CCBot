@@ -1,8 +1,7 @@
-import { Controller, Get, UseGuards, Req, Res } from '@nestjs/common';
+import { Controller, Get, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
 import axios from 'axios';
 import { AuthService } from './auth.service';
-import { NaverAuthGuard } from './guard/naver.auth.guard';
 import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
@@ -11,20 +10,6 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly configService: ConfigService
   ) {}
-
-  @Get('login/naver')
-  @UseGuards(NaverAuthGuard)
-  async loginWithNaver() {
-    return;
-  }
-
-  @Get('login/naver/callback')
-  @UseGuards(NaverAuthGuard)
-  async naverLoginCallback(@Req() req: Request, @Res() res: Response) {
-    const { uid, accessToken, refreshToken } = await this.authService.validateNaver(req);
-
-    res.json({ uid, access_token: accessToken, refresh_token: refreshToken });
-  }
 
   // Reference: https://begong313.tistory.com/37
   @Get('login/chzzk')
