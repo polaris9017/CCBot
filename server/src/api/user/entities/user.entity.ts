@@ -1,6 +1,17 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  Unique,
+  UpdateDateColumn,
+} from 'typeorm';
+import { UserInfo } from './user-info.entity';
 
 @Entity('user')
+@Unique(['naverUid'])
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -8,6 +19,18 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', length: 100, nullable: false })
   naverUid: string;
 
-  @Column({ type: 'varchar', length: 8, nullable: false })
-  uid: string;
+  @Column({ type: 'varchar', length: 80, nullable: false })
+  email: string;
+
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt: Date;
+
+  @OneToOne(() => UserInfo, (userInfo) => userInfo.user, {
+    onDelete: 'CASCADE',
+    eager: true,
+  })
+  userInfo: UserInfo;
 }
