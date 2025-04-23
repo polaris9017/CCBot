@@ -1,8 +1,9 @@
-import { Controller, Get, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
 import axios from 'axios';
 import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
+import { LoginUserDto } from './dto/login-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -10,6 +11,14 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly configService: ConfigService
   ) {}
+
+  @Post('login')
+  @HttpCode(HttpStatus.OK)
+  async login(@Body() loginUserDto: LoginUserDto, @Res() res: Response) {
+    const user = await this.authService.login(loginUserDto);
+
+    res.json({ ...user });
+  }
 
   // Reference: https://begong313.tistory.com/37
   @Get('login/chzzk')
