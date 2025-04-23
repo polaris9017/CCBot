@@ -20,7 +20,7 @@ export class UserController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async createUser(@Body() createUserDto: CreateUserDto) {
-    await this.userService.createUser(createUserDto);
+    return await this.userService.createUser(createUserDto);
   }
 
   @Get('me')

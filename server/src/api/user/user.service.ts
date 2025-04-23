@@ -43,6 +43,8 @@ export class UserService {
     } finally {
       await queryRunner.release();
     }
+
+    return { uid: this.generateUserId(naverUid) };
   }
 
   async findUserByUID(id: string) {
