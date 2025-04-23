@@ -3,14 +3,11 @@ import {
   Get,
   Post,
   Body,
-  Param,
   Delete,
   HttpStatus,
   HttpCode,
   UseGuards,
-  Req,
 } from '@nestjs/common';
-import { Request } from 'express';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { JwtGuard } from '../auth/guard/jwt.guard';
@@ -36,7 +33,7 @@ export class UserController {
   @Delete('me')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtGuard)
-  async deleteUser(@Req() req: Request) {
-    await this.userService.deleteUser(req);
+  async deleteUser(@CurrentUser() user: any) {
+    await this.userService.deleteUser(user.naverUid);
   }
 }

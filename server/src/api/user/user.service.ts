@@ -55,15 +55,13 @@ export class UserService {
     return user;
   }
 
-  async deleteUser(req: any) {
-    const { naverUid } = req.user;
-
-    const findUserById = await this.userRepository.findOne({ where: { naverUid } });
+  async deleteUser(id: string) {
+    const findUserById = await this.userRepository.findOne({ where: { naverUid: id } });
     if (!findUserById) {
       throw new HttpException('fail - User not found', HttpStatus.NOT_FOUND);
     }
 
-    await this.userRepository.delete({ naverUid });
+    await this.userRepository.delete({ naverUid: id });
   }
 
   private generateUserId(input: string): string {
