@@ -11,7 +11,7 @@ import {
 import { User } from './user.entity';
 
 @Entity('user_info')
-@Unique(['uid'])
+@Unique(['email'])
 export class UserInfo extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -19,8 +19,8 @@ export class UserInfo extends BaseEntity {
   @PrimaryColumn()
   userId: number;
 
-  @Column({ type: 'varchar', length: 8, nullable: false })
-  uid: string;
+  @Column({ type: 'varchar', length: 80, nullable: false })
+  email: string;
 
   @OneToOne(() => User, (user) => user.userInfo, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })

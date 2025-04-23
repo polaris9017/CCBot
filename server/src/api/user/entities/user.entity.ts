@@ -19,8 +19,8 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', length: 100, nullable: false })
   naverUid: string;
 
-  @Column({ type: 'varchar', length: 80, nullable: false })
-  email: string;
+  @Column({ type: 'varchar', length: 8, nullable: false })
+  uid: string;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;

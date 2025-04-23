@@ -22,12 +22,12 @@ export class UserService {
     await queryRunner.startTransaction();
 
     try {
-      const user = this.userRepository.create({ naverUid, email });
+      const user = this.userRepository.create({ naverUid, uid: this.generateUserId(naverUid) });
       const savedUser = await queryRunner.manager.save(user);
 
       const userInfo = this.userInfoRepository.create({
         userId: savedUser.id,
-        uid: this.generateUserId(naverUid),
+        email,
       });
       await queryRunner.manager.save(userInfo);
 
