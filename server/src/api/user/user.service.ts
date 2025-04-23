@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ConflictException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
@@ -22,6 +22,11 @@ export class UserService {
     await queryRunner.startTransaction();
 
     try {
+      const existingUser = await this.userRepository.existsBy({ naverUid });
+      if (existingUser) {
+        throw new ConflictException({ message: 'fail - User already exists' });
+      }
+
       const user = this.userRepository.create({ naverUid, uid: this.generateUserId(naverUid) });
       const savedUser = await queryRunner.manager.save(user);
 
