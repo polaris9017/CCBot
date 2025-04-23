@@ -55,7 +55,7 @@ export class UserService {
     return user;
   }
 
-  async remove(req: any) {
+  async deleteUser(req: any) {
     const { naverUid } = req.user;
 
     const findUserById = await this.userRepository.findOne({ where: { naverUid } });

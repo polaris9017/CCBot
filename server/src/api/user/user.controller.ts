@@ -31,10 +31,10 @@ export class UserController {
     return await this.userService.findUserByUID(id);
   }
 
-  @Delete(':id')
+  @Delete('me')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtGuard)
-  async remove(@Req() req: Request) {
-    await this.userService.remove(req);
+  async deleteUser(@Req() req: Request) {
+    await this.userService.deleteUser(req);
   }
 }
