@@ -22,7 +22,7 @@ export class AuthController {
 
   // Reference: https://begong313.tistory.com/37
   @Get('login/chzzk')
-  async loginWithChzzk(@Req() req: Request, @Res() res: Response) {
+  loginWithChzzk(@Req() req: Request, @Res() res: Response) {
     const authorizationURL = 'https://chzzk.naver.com/account-interlock';
     const callbackURL = `${this.configService.get<string>('HOST')}/auth/login/chzzk/callback`;
     const clientId = this.configService.get<string>('CHZZK_CLIENT_ID');
