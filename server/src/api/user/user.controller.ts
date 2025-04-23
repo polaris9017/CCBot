@@ -14,6 +14,7 @@ import { Request } from 'express';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { JwtGuard } from '../auth/guard/jwt.guard';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
 @Controller('user')
 export class UserController {
@@ -25,10 +26,11 @@ export class UserController {
     await this.userService.createUser(createUserDto);
   }
 
-  @Get(':id')
+  @Get('me')
   @HttpCode(HttpStatus.OK)
-  async findUserByUID(@Param('id') id: string) {
-    return await this.userService.findUserByUID(id);
+  @UseGuards(JwtGuard)
+  async findCurrentUser(@CurrentUser() user: any) {
+    return await this.userService.findUserByUID(user.naverUid);
   }
 
   @Delete('me')
