@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeORMConfig } from './common/typeorm.config';
 import { AuthModule } from './api/auth/auth.module';
 import { UserModule } from './api/user/user.module';
+import { ChatModule } from './api/chat/chat.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { UserModule } from './api/user/user.module';
     }),
     AuthModule,
     UserModule,
+    ChatModule,
   ],
   providers: [],
 })
