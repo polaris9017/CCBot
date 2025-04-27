@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { UserModule } from '../user/user.module';
 import { JwtGuard } from './guard/jwt.guard';
 import { JwtStrategy } from './strategy/jwt.strategy';
+import { RedisRepository } from 'src/common/redis/redis.repository';
 
 @Module({
   imports: [
@@ -19,6 +20,6 @@ import { JwtStrategy } from './strategy/jwt.strategy';
     forwardRef(() => UserModule),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtGuard, JwtStrategy, JwtGuard],
+  providers: [AuthService, JwtGuard, JwtStrategy, JwtGuard, RedisRepository],
 })
 export class AuthModule {}

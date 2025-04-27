@@ -44,8 +44,8 @@ export class AuthController {
       code,
       state,
     });
-    const { accessToken, refreshToken } = this.authService.validateChzzk(tokenResponse.data);
+    await this.authService.validateChzzk(state, tokenResponse.data);
 
-    res.json({ access_token: accessToken, refresh_token: refreshToken });
+    res.json({ state: HttpStatus.OK, data: 'success' });
   }
 }

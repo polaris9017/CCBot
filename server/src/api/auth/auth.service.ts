@@ -1,10 +1,14 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UserService } from '../user/user.service';
+import { RedisRepository } from 'src/common/redis/redis.repository';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly redisRepository: RedisRepository
+  ) {}
 
   async login(loginUserDto: LoginUserDto) {
     const { naverUid, email } = loginUserDto;
@@ -18,10 +22,11 @@ export class AuthService {
     return { uid: user.uid };
   }
 
-  validateChzzk(req) {
+  async validateChzzk(state, req) {
     const accessToken = req.content.accessToken;
     const refreshToken = req.content.refreshToken;
 
-    return { accessToken, refreshToken };
+    await this.redisRepository.set(`accessToken/chzzk:${state}`, accessToken, 60 * 60 * 24);
+    await this.redisRepository.set(`refreshToken/chzzk:${state}`, refreshToken, 60 * 60 * 24 * 30);
   }
 }
