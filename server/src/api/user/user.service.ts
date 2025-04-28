@@ -61,6 +61,15 @@ export class UserService {
     return user;
   }
 
+  async setUserChannelId(uid: string, channelId: string) {
+    const user = await this.userRepository.findOne({ where: { uid } });
+    if (!user) {
+      throw new HttpException('fail - User not found', HttpStatus.NOT_FOUND);
+    }
+
+    await this.userInfoRepository.update({ userId: user.id }, { channelId });
+  }
+
   async deleteUser(id: string) {
     const findUserById = await this.userRepository.findOne({ where: { naverUid: id } });
     if (!findUserById) {
