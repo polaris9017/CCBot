@@ -12,16 +12,21 @@ export class ChatGateway implements OnGatewayConnection {
   server: Server;
 
   private clients = new Map<string, Socket>();
+  private userId: string = '';
 
   handleConnection(@ConnectedSocket() client: Socket) {
-    const userId = client.handshake.query?.id as string;
-    if (userId) {
-      this.clients.set(userId, client);
-      console.log(`[ChatGateway] ${userId} connected`);
+    this.userId = client.handshake.query?.id as string;
+    if (this.userId) {
+      this.clients.set(this.userId, client);
+      console.log(`[ChatGateway] ${this.userId} connected`);
     } else {
       console.log('[ChatGateway] User not found. Disconnecting...');
       client.disconnect();
     }
+  }
+
+  getUserId() {
+    return this.userId;
   }
 
   emitToUser(userId: string, event: string, data: any) {
