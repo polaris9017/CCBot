@@ -17,6 +17,8 @@ export class AuthController {
   async login(@Body() loginUserDto: LoginUserDto, @Res() res: Response) {
     const user = await this.authService.login(loginUserDto);
 
+    // Reference: https://kscodebase.tistory.com/538
+    if (!user) res.redirect(HttpStatus.PERMANENT_REDIRECT, '/user/signup');
     res.json({ ...user });
   }
 

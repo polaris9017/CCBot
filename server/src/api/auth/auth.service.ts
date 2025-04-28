@@ -11,12 +11,12 @@ export class AuthService {
   ) {}
 
   async login(loginUserDto: LoginUserDto) {
-    const { naverUid, email } = loginUserDto;
+    const { naverUid } = loginUserDto;
 
     const user = await this.userService.findUserByUID(naverUid);
 
-    if (!user || user.userInfo.email !== email) {
-      throw new UnauthorizedException('fail - User not found');
+    if (!user) {
+      return null;
     }
 
     return { uid: user.uid };

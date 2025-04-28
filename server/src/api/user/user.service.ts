@@ -15,7 +15,7 @@ export class UserService {
   ) {}
 
   async createUser(createUserDto: CreateUserDto) {
-    const { email, naverUid } = createUserDto;
+    const { naverUid } = createUserDto;
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -32,7 +32,6 @@ export class UserService {
 
       const userInfo = this.userInfoRepository.create({
         userId: savedUser.id,
-        email,
       });
       await queryRunner.manager.save(userInfo);
 
