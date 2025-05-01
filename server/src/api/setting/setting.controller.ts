@@ -20,8 +20,9 @@ export class SettingController {
     @Body() createSettingDto: CreateSettingDto,
     @Res() res: Response
   ) {
+    const { settings } = createSettingDto;
     const uid = await this.userService.findUserIdByNaverUid(currentUser.naverUid);
-    res.json(await this.settingService.createSetting({ uid, ...createSettingDto }));
+    res.json(await this.settingService.createSetting({ uid, settings }));
   }
 
   @Get()

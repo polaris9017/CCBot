@@ -1,12 +1,4 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  JoinColumn,
-  OneToOne,
-  PrimaryGeneratedColumn,
-  Unique,
-} from 'typeorm';
+import { BaseEntity, Column, Entity, OneToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 
 @Entity('setting')
@@ -18,12 +10,11 @@ export class Setting extends BaseEntity {
   @Column({ type: 'varchar', length: 8, nullable: false })
   uid: string;
 
-  @Column({ type: 'jsonb', nullable: false, default: {} })
+  @Column({ type: 'json', nullable: false })
   settings: object;
 
   @OneToOne(() => User, (user) => user.setting, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'uid' })
   user: User;
 }
