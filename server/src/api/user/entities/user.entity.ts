@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UserInfo } from './user-info.entity';
+import { Setting } from '../../setting/entities/setting.entity';
 
 @Entity('user')
 @Unique(['naverUid'])
@@ -33,4 +34,10 @@ export class User extends BaseEntity {
     eager: true,
   })
   userInfo: UserInfo;
+
+  @OneToOne(() => Setting, (setting) => setting.user, {
+    onDelete: 'CASCADE',
+    eager: true,
+  })
+  setting: Setting;
 }

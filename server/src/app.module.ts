@@ -6,6 +6,7 @@ import { typeORMConfig } from './common/typeorm.config';
 import { AuthModule } from './api/auth/auth.module';
 import { UserModule } from './api/user/user.module';
 import { ChatModule } from './api/chat/chat.module';
+import { SettingModule } from './api/setting/setting.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ChatModule } from './api/chat/chat.module';
     }),
     AuthModule,
     UserModule,
+    SettingModule,
     ChatModule,
   ],
   providers: [],
