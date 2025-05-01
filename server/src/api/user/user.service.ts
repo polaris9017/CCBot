@@ -1,4 +1,10 @@
-import { ConflictException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import * as crypto from 'crypto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
@@ -54,11 +60,15 @@ export class UserService {
       relations: ['userInfo'],
     });
 
-    if (!user) {
-      return null;
-    }
+    if (!user) throw new NotFoundException('fail - User not found');
 
     return user;
+  }
+
+  async findUserIdByNaverUid(naverUid: string) {
+    const user = await this.findUserByUID(naverUid);
+    if (!user) throw new NotFoundException('fail - User not found');
+    return user.uid;
   }
 
   async setUserChannelId(uid: string, channelId: string) {
