@@ -12,7 +12,26 @@ export const {
         strategy: 'jwt'
     },
     callbacks: {
-        jwt({token, account, profile, trigger, session}) {
+        async signIn({user, account, profile}) {
+            if (account?.provider === 'naver') {
+                try {
+                    const retrievedUserInfo = await backendSignIn({
+                        naverUid: profile?.response?.id as string
+                    });
+                    Object.assign(user, retrievedUserInfo);
+                    return !!profile?.response?.id;
+                } catch (error) {
+                    if (error instanceof Error) {
+                        return '/error';
+                    }
+                }
+            }
+            return true;
+        },
+        jwt({token, user, account, profile, trigger, session}) {
+            if (user) {
+                Object.assign(token, user);
+            }
             if (account) {
                 token.accessToken = account.access_token;
                 token.id = profile?.response?.id;
@@ -23,15 +42,40 @@ export const {
         async session({session, token}) {
             session.accessToken = token.accessToken;
             session.user.id = token.id!;
+            session.user.uid = token.uid as string;
             return session;
         }
     }
 });
 
+async function backendSignIn(body: { naverUid: string }) {
+    const response = await fetch(`${process.env.BACK_API_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+    });
+    const data = await response.json() as UserResponse | string;
+
+    if (response.ok && typeof data !== 'string') {
+        const {uid, user_info} = data;
+
+        return {
+            uid: uid,
+            channelId: user_info?.channel_id,
+        };
+    }
+
+    throw new Error((data || 'Error occurred from server. Try again little bit later.') as string);
+}
+
 declare module 'next-auth' {
     interface Session {
         user?: {
             id: string;
+            uid: string;
+            channelId?: string;
         }
         accessToken?: string;
     }
@@ -47,5 +91,12 @@ declare module 'next-auth/jwt' {
     interface JWT {
         id?: string;
         accessToken?: string;
+    }
+}
+
+interface UserResponse {
+    uid: string;
+    user_info?: {
+        channel_id: string;
     }
 }
