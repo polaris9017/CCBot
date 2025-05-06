@@ -60,7 +60,9 @@ export class UserService {
       relations: ['userInfo'],
     });
 
-    if (!user) throw new NotFoundException('fail - User not found');
+    if (!user) {
+      return null;
+    }
 
     return user;
   }

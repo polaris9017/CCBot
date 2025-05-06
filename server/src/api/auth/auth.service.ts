@@ -34,7 +34,7 @@ export class AuthService {
       },
     });
 
-    await this.userService.setUserChannelId(state, profileResponse.data.channelId);
+    await this.userService.setUserChannelId(state, profileResponse.data.content.channelId);
 
     await this.redisRepository.set(`accessToken/chzzk:${state}`, accessToken, 60 * 60 * 24);
     await this.redisRepository.set(`refreshToken/chzzk:${state}`, refreshToken, 60 * 60 * 24 * 30);

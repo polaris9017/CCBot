@@ -1,4 +1,12 @@
-import { BaseEntity, Column, Entity, OneToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 
 @Entity('setting')
@@ -16,5 +24,6 @@ export class Setting extends BaseEntity {
   @OneToOne(() => User, (user) => user.setting, {
     onDelete: 'CASCADE',
   })
+  @JoinColumn({ name: 'uid', referencedColumnName: 'uid' })
   user: User;
 }
