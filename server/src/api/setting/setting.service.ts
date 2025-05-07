@@ -41,7 +41,11 @@ export class SettingService {
 
   async findSetting(uid: string) {
     const setting = await this.settingRepository.findOne({ where: { uid: uid } });
-    if (!setting) throw new NotFoundException('fail - Setting not found');
+    if (!setting)
+      throw new NotFoundException({
+        status: HttpStatus.NOT_FOUND,
+        data: 'fail - Setting not found',
+      });
 
     return setting;
   }

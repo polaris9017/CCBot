@@ -1,10 +1,21 @@
-import { Controller, Get, Post, Body, Patch, HttpCode, HttpStatus, Res } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  HttpCode,
+  HttpStatus,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { SettingService } from './setting.service';
 import { CreateSettingDto } from './dto/create-setting.dto';
 import { UpdateSettingDto } from './dto/update-setting.dto';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { UserService } from '../user/user.service';
 import { Response } from 'express';
+import { JwtGuard } from '../auth/guard/jwt.guard';
 
 @Controller('setting')
 export class SettingController {
@@ -26,10 +37,12 @@ export class SettingController {
   }
 
   @Get()
-  @HttpCode(HttpStatus.OK)
-  async find(@CurrentUser() currentUser: any) {
+  @UseGuards(JwtGuard)
+  async find(@CurrentUser() currentUser: any, @Res() res: Response) {
     const uid = await this.userService.findUserIdByNaverUid(currentUser.naverUid);
-    return await this.settingService.findSetting(uid);
+    const setting = await this.settingService.findSetting(uid);
+
+    res.status(HttpStatus.OK).json({ status: HttpStatus.OK, data: setting });
   }
 
   @Patch()
