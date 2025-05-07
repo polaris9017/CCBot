@@ -1,4 +1,5 @@
 import NextAuth from 'next-auth';
+import 'next-auth/jwt';  // Reference: https://github.com/nextauthjs/next-auth/issues/9571
 import Naver from "@auth/core/providers/naver";
 
 export const {

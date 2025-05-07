@@ -1,7 +1,7 @@
 import {usePathname} from "next/navigation";
 import {createContext, useContext, useEffect, useState} from "react";
 import type {Session} from "next-auth";
-import {getSession} from "@/app/serverActions/auth";
+import {getSession} from "@/serverActions/auth";
 
 const SessionContent = createContext<Session | null>(null);
 
