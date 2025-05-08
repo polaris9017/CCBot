@@ -1,12 +1,13 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import * as process from 'node:process';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeORMConfig } from './common/typeorm.config';
 import { AuthModule } from './api/auth/auth.module';
 import { UserModule } from './api/user/user.module';
 import { ChatModule } from './api/chat/chat.module';
 import { SettingModule } from './api/setting/setting.module';
+import { WintonLoggerModule } from './common/logger/winton-logger.module';
+import { WinstonLoggerMiddleware } from './common/logger/winston-logger.middleware';
 
 @Module({
   imports: [
@@ -23,7 +24,12 @@ import { SettingModule } from './api/setting/setting.module';
     UserModule,
     SettingModule,
     ChatModule,
+    WintonLoggerModule,
   ],
   providers: [],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(WinstonLoggerMiddleware).forRoutes('*');
+  }
+}
