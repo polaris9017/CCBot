@@ -1,4 +1,14 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  Res,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Request, Response } from 'express';
 import axios from 'axios';
 import { AuthService } from './auth.service';
@@ -17,9 +27,20 @@ export class AuthController {
   async login(@Body() loginUserDto: LoginUserDto, @Res() res: Response) {
     const user = await this.authService.login(loginUserDto);
 
-    // Reference: https://kscodebase.tistory.com/538
-    if (!user) res.redirect(HttpStatus.PERMANENT_REDIRECT, '/user/signup');
     res.json({ ...user });
+  }
+
+  @Post('token')
+  @HttpCode(HttpStatus.OK)
+  async refreshToken(@Req() req: Request, @Res() res: Response) {
+    const { refreshToken } = req.body;
+    if (!refreshToken) {
+      throw new UnauthorizedException({ message: 'fail - Refresh token is required' });
+    }
+
+    const { newAccessToken, newRefreshToken } = await this.authService.refreshToken(refreshToken);
+
+    res.json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
   }
 
   // Reference: https://begong313.tistory.com/37

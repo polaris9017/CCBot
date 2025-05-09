@@ -1,7 +1,7 @@
 export interface AccessTokenPayload {
-  id: string;
+  uid: string;
 }
 
 export interface RefreshTokenPayload {
-  id: string;
+  uid: string;
 }
