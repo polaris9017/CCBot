@@ -5,4 +5,4 @@ import { WinstonLoggerService } from './winston-logger.service';
   providers: [WinstonLoggerService],
   exports: [WinstonLoggerService],
 })
-export class WintonLoggerModule {}
+export class WinstonLoggerModule {}

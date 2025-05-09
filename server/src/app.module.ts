@@ -6,7 +6,7 @@ import { AuthModule } from './api/auth/auth.module';
 import { UserModule } from './api/user/user.module';
 import { ChatModule } from './api/chat/chat.module';
 import { SettingModule } from './api/setting/setting.module';
-import { WintonLoggerModule } from './common/logger/winton-logger.module';
+import { WinstonLoggerModule } from './common/logger/winston-logger.module';
 import { WinstonLoggerMiddleware } from './common/logger/winston-logger.middleware';
 
 @Module({
@@ -24,7 +24,7 @@ import { WinstonLoggerMiddleware } from './common/logger/winston-logger.middlewa
     UserModule,
     SettingModule,
     ChatModule,
-    WintonLoggerModule,
+    WinstonLoggerModule,
   ],
   providers: [],
 })
