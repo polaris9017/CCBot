@@ -21,7 +21,7 @@ export class AuthService {
   async login(loginUserDto: LoginUserDto) {
     const { naverUid } = loginUserDto;
 
-    let user = await this.userService.findUserByUID(naverUid);
+    let user = await this.userService.findUserByNaverUid(naverUid);
 
     if (!user) {
       const { uid } = await this.userService.createUser(loginUserDto);

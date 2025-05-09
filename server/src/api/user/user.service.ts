@@ -55,20 +55,25 @@ export class UserService {
   async findUserByUID(id: string) {
     const user = await this.userRepository.findOne({
       where: {
-        naverUid: id,
+        uid: id,
       },
       relations: ['userInfo'],
     });
 
-    if (!user) {
-      return null;
-    }
+    return user;
+  }
+
+  async findUserByNaverUid(naverUid: string) {
+    const user = await this.userRepository.findOne({
+      where: { naverUid },
+      relations: ['userInfo'],
+    });
 
     return user;
   }
 
   async findUserIdByNaverUid(naverUid: string) {
-    const user = await this.findUserByUID(naverUid);
+    const user = await this.findUserByNaverUid(naverUid);
     if (!user) throw new NotFoundException('fail - User not found');
     return user.uid;
   }
