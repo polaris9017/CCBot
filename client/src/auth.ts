@@ -37,8 +37,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     async session({ session, token }) {
       session.accessToken = token.accessToken;
-      session.user.id = token.user.id!;
+      session.user.id = token.id!;
       session.user.uid = token.user.uid as string;
+      session.user.channelId = token.user.channelId;
       return session;
     },
   },
@@ -71,7 +72,6 @@ async function backendSignIn(body: { naverUid: string }) {
 declare module 'next-auth' {
   interface Session {
     user?: {
-      id: string;
       uid: string;
       channelId?: string;
     };
@@ -88,12 +88,13 @@ declare module 'next-auth' {
 declare module 'next-auth/jwt' {
   interface JWT {
     user: {
-      id?: string;
       uid: string;
+      channelId?: string;
       accessToken?: string;
       refreshToken?: string;
     };
     accessToken?: string;
+    id?: string;
   }
 }
 
