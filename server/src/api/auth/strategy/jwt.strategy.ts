@@ -3,6 +3,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from 'src/api/user/user.service';
+import { AccessTokenPayload } from '../auth.interface';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -16,9 +17,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  async validate(payload: any) {
-    const { id } = payload.user;
-    const user = await this.userService.findUserByNaverUid(id);
+  async validate(payload: Payload) {
+    const { uid } = payload;
+    const user = await this.userService.findUserByUID(uid);
 
     if (!user) {
       throw new UnauthorizedException({ message: 'fail - User not found' });
@@ -28,8 +29,4 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 }
 
-export interface Payload {
-  user?: {
-    id: string;
-  };
-}
+export type Payload = AccessTokenPayload;
