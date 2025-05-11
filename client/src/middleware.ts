@@ -13,5 +13,5 @@ export default auth((request) => {
 });
 
 export const config = {
-  matcher: ['/api/((?!auth/signin|auth/signout|auth/session|auth/callback/naver).*)'],
+  matcher: ['/api/auth/token', '/api/setting'],
 };
