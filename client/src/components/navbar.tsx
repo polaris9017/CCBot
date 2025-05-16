@@ -17,7 +17,7 @@ import { signInWithNaver } from '@/serverActions/auth';
 
 const navigation = [{ name: '대시보드', href: '#', current: false }];
 
-function classNames(...classes: any[]) {
+function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
 }
 
