@@ -13,7 +13,6 @@ import {
   MenuItems,
 } from '@headlessui/react';
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { signInWithNaver } from '@/serverActions/auth';
 
 const navigation = [{ name: '대시보드', href: '#', current: false }];
 
@@ -118,9 +117,7 @@ export const NavBar = () => {
                         <img alt="" src={user.imageUrl} className="size-8 rounded-full" />
                       </MenuButton>
                     )}
-                    {status === 'unauthenticated' && (
-                      <form action={() => signInWithNaver('/dashboard')}>{loginButton}</form>
-                    )}
+                    {status === 'unauthenticated' && <form action="/signin">{loginButton}</form>}
                   </div>
 
                   {status === 'authenticated' && (
@@ -155,7 +152,7 @@ export const NavBar = () => {
                 </DisclosureButton>
               )}
               {status === 'unauthenticated' && (
-                <form action={() => signInWithNaver('/dashboard')}>{loginDisclosureButton}</form>
+                <form action="/signin">{loginDisclosureButton}</form>
               )}
             </div>
           </div>

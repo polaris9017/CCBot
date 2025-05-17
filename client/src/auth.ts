@@ -6,6 +6,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [Naver],
   session: {
     strategy: 'jwt',
+    maxAge: 60 * 60,
+  },
+  pages: {
+    signIn: '/signin',
   },
   callbacks: {
     async signIn({ user, account, profile }) {
