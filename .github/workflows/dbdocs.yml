@@ -1,0 +1,22 @@
+name: CI-dbdocs
+on:
+  push:
+    paths:
+      - 'server/schemes/ccbot.dbml'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 'Install dbdocs'
+        run: sudo npm install -g dbdocs
+
+      - name: 'Check dbdocs whether installed'
+        run: dbdocs
+
+      - name: 'Update dbdocs project'
+        env:
+          DBDOCS_TOKEN: ${{secrets.TOKEN_DBDOCS}}
+        run: dbdocs build ./server/schemes/ccbot.dbml --project=${{secrets.PROJECT_DBDOCS}}
