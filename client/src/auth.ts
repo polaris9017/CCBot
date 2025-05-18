@@ -60,11 +60,11 @@ async function backendSignIn(body: { naverUid: string }) {
   const data = (await response.json()) as UserResponse | string;
 
   if (response.ok && typeof data !== 'string') {
-    const { uid, userInfo, accessToken, refreshToken } = data;
+    const { uid, channelId, accessToken, refreshToken } = data;
 
     return {
       uid: uid,
-      channelId: userInfo!.channelId,
+      channelId: channelId,
       accessToken: accessToken,
       refreshToken: refreshToken,
     };
@@ -104,9 +104,7 @@ declare module 'next-auth/jwt' {
 
 interface UserResponse {
   uid: string;
-  userInfo?: {
-    channelId: string;
-  };
+  channelId: string;
   accessToken?: string;
   refreshToken?: string;
 }

@@ -1,22 +1,25 @@
 'use client';
 import Image from 'next/image';
-import { redirect } from 'next/navigation';
+import { redirect, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { signInWithNaver } from '@/serverActions/auth';
 
 export default function Signin() {
   const { status } = useSession();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+
   const buttonStyle = {
     width: '15vw',
     height: 'auto',
   };
 
-  if (status === 'authenticated') redirect('/dashboard');
+  if (status === 'authenticated') redirect(callbackUrl);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="p-8 bg-white rounded shadow-md space-y-6">
-        <form className="space-y-4" action={async () => signInWithNaver('/dashboard')}>
+        <form className="space-y-4" action={async () => signInWithNaver(callbackUrl)}>
           <p className="text-gray-600 text-center">
             서비스 이용을 위해서는 네이버 로그인이 필요합니다.
           </p>
