@@ -8,6 +8,7 @@ import { UserService } from '../user/user.service';
 import { RedisRepository } from 'src/common/redis/redis.repository';
 import { AccessTokenPayload, RefreshTokenPayload } from './auth.interface';
 import { User } from '../user/entities/user.entity';
+import { UserView } from '../user/entities/user-view.entity';
 
 @Injectable()
 export class AuthService {
@@ -37,7 +38,7 @@ export class AuthService {
       60 * 60 * 24 * 30
     );
 
-    return { uid: user!.uid, userInfo: user!.userInfo, accessToken, refreshToken };
+    return { ...user, accessToken, refreshToken };
   }
 
   async refreshToken(refreshToken: string) {
@@ -87,7 +88,7 @@ export class AuthService {
     await this.redisRepository.set(`refreshToken/chzzk:${state}`, refreshToken, 60 * 60 * 24 * 30);
   }
 
-  private async generateAccessToken(user: User): Promise<string> {
+  private async generateAccessToken(user: UserView): Promise<string> {
     const payload: AccessTokenPayload = {
       uid: user.uid,
     };

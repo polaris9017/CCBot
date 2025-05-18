@@ -11,12 +11,14 @@ import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { UserInfo } from './entities/user-info.entity';
+import { UserView } from './entities/user-view.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRepository(UserInfo) private readonly userInfoRepository: Repository<UserInfo>,
+    @InjectRepository(UserView) private readonly userViewRepository: Repository<UserView>,
     private readonly dataSource: DataSource
   ) {}
 
@@ -53,20 +55,18 @@ export class UserService {
   }
 
   async findUserByUID(id: string) {
-    const user = await this.userRepository.findOne({
+    const user = await this.userViewRepository.findOne({
       where: {
         uid: id,
       },
-      relations: ['userInfo'],
     });
 
     return user;
   }
 
   async findUserByNaverUid(naverUid: string) {
-    const user = await this.userRepository.findOne({
+    const user = await this.userViewRepository.findOne({
       where: { naverUid },
-      relations: ['userInfo'],
     });
 
     return user;
