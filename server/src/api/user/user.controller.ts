@@ -7,11 +7,13 @@ import {
   HttpStatus,
   HttpCode,
   UseGuards,
+  Patch,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { JwtGuard } from '../auth/guard/jwt.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('user')
 export class UserController {
@@ -28,6 +30,13 @@ export class UserController {
   @UseGuards(JwtGuard)
   async findCurrentUser(@CurrentUser() user: any) {
     return await this.userService.findUserByUID(user.naverUid);
+  }
+
+  @Patch('me')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtGuard)
+  async setUserChannelId(@CurrentUser() user: any, @Body() updateUserDto: UpdateUserDto) {
+    await this.userService.updateUser(user.naverUid, updateUserDto);
   }
 
   @Delete('me')
