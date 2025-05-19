@@ -1,6 +1,7 @@
 import NextAuth from 'next-auth';
 import 'next-auth/jwt'; // Reference: https://github.com/nextauthjs/next-auth/issues/9571
 import Naver from '@auth/core/providers/naver';
+import { CredentialsSignin } from '@auth/core/errors';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [Naver],
@@ -21,9 +22,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           Object.assign(user, retrievedUserInfo);
           return !!profile?.response?.id;
         } catch (error) {
-          if (error instanceof Error) {
-            return '/error';
-          }
+          if (error instanceof Error) return `/auth/error?error=${error.name}&code=${error.code}`;
         }
       }
       return true;
@@ -50,27 +49,31 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 });
 
 async function backendSignIn(body: { naverUid: string }) {
-  const response = await fetch(`${process.env.BACK_API_URL}/auth/login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-  });
-  const data = (await response.json()) as UserResponse | string;
+  try {
+    const response = await fetch(`${process.env.BACK_API_URL}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+    const data = (await response.json()) as UserResponse | string;
 
-  if (response.ok && typeof data !== 'string') {
-    const { uid, channelId, accessToken, refreshToken } = data;
+    if (response.ok && typeof data !== 'string') {
+      const { uid, channelId, accessToken, refreshToken } = data;
 
-    return {
-      uid: uid,
-      channelId: channelId,
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-    };
+      return {
+        uid: uid,
+        channelId: channelId,
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      };
+    }
+  } catch (e) {
+    const error = new CredentialsSignin();
+    error.code = `ServerNotRespond`;
+    throw error;
   }
-
-  throw new Error((data || 'Error occurred from server. Try again little bit later.') as string);
 }
 
 declare module 'next-auth' {
