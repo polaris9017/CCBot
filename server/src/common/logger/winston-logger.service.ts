@@ -11,7 +11,7 @@ export class WinstonLoggerService implements LoggerService {
 
   constructor(private readonly configService: ConfigService) {
     const isProduction = configService.get<string>('NODE_ENV') === 'production';
-    const loggindDirectory = __dirname + '/../../logs';
+    const loggingDirectory = __dirname + '/../../logs';
     const { timestamp, ms, combine } = winston.format;
     const { nestLike } = NestWinstonModuleUtilities.format;
 
@@ -19,7 +19,7 @@ export class WinstonLoggerService implements LoggerService {
       return {
         level,
         datePattern: 'YYYY-MM-DD',
-        dirname: loggindDirectory + `/%DATE%`,
+        dirname: loggingDirectory + `/%DATE%`,
         filename: `${this.appName}-${level}.log`,
         zippedArchive: true,
         maxSize: '20m',

@@ -1,10 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
+import { winstonLogger } from './common/logger/winston-logger.internal';
 import { WinstonLoggerService } from './common/logger/winston-logger.service';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: winstonLogger,
+  });
 
   app.useLogger(app.get(WinstonLoggerService));
   const configService = app.get(ConfigService);
