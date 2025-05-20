@@ -7,8 +7,8 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { UserService } from '../user/user.service';
 import { RedisRepository } from 'src/common/redis/redis.repository';
 import { AccessTokenPayload, RefreshTokenPayload } from './auth.interface';
-import { User } from '../user/entities/user.entity';
 import { UserView } from '../user/entities/user-view.entity';
+import { CreateUserDto } from '../user/dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -25,7 +25,7 @@ export class AuthService {
     let user = await this.userService.findUserByNaverUid(naverUid);
 
     if (!user) {
-      const { uid } = await this.userService.createUser(loginUserDto);
+      const { uid } = await this.userService.createUser(loginUserDto as CreateUserDto);
       user = await this.userService.findUserByUID(uid);
     }
 
