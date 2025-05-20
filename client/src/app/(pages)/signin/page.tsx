@@ -18,7 +18,7 @@ export default function Signin() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="p-8 bg-white rounded shadow-md space-y-6">
+      <div className="p-8 bg-white rounded-xl shadow-lg space-y-6">
         <form className="space-y-4" action={async () => signInWithNaver(callbackUrl)}>
           <p className="text-gray-600 text-center">
             서비스 이용을 위해서는 네이버 로그인이 필요합니다.
