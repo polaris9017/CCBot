@@ -23,7 +23,7 @@ export function SharedStateContextProvider({ children }: { children: ReactNode }
 export function useSharedState() {
   const context = useContext(sharedStateContext);
   if (context === undefined) {
-    throw new Error('useSharedState must be used within a MyContextProvider');
+    throw new Error('useSharedState must be used within a SharedStateContextProvider');
   }
   return context;
 }
