@@ -10,7 +10,7 @@ export default function DashboardLayout({
 }) {
   return (
     <SharedStateContextProvider>
-      <div>
+      <div className="flex justify-start">
         {sidebar}
         {children}
       </div>
