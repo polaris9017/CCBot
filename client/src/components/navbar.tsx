@@ -3,6 +3,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
+import { usePathname } from 'next/navigation';
 import {
   Disclosure,
   DisclosureButton,
@@ -22,23 +23,9 @@ function classNames(...classes: string[]) {
 
 export const NavBar = () => {
   const { status, data } = useSession();
+  const pathName = usePathname();
+  const exceptionList = ['/signin', '/api/auth/signin'];
 
-  const loginButton = (
-    <MenuButton
-      className="rounded bg-sky-600 px-4 py-1 text-sm text-white data-active:bg-sky-700 data-hover:bg-sky-500"
-      type={'submit'}
-    >
-      대시보드로 이동
-    </MenuButton>
-  );
-  const loginDisclosureButton = (
-    <DisclosureButton
-      className="rounded bg-sky-600 px-4 py-1 text-sm text-white data-active:bg-sky-700 data-hover:bg-sky-500"
-      type={'submit'}
-    >
-      대시보드로 이동
-    </DisclosureButton>
-  );
   const [userNavigation, setUserNavigation] = useState([{ name: '', href: '' }]);
   const [user, setUser] = useState({
     name: '',
@@ -60,6 +47,25 @@ export const NavBar = () => {
       });
     }
   }, [data?.user, status]);
+
+  if (exceptionList.includes(pathName)) return <></>;
+
+  const loginButton = (
+    <MenuButton
+      className="rounded bg-sky-600 px-4 py-1 text-sm text-white data-active:bg-sky-700 data-hover:bg-sky-500"
+      type={'submit'}
+    >
+      대시보드로 이동
+    </MenuButton>
+  );
+  const loginDisclosureButton = (
+    <DisclosureButton
+      className="rounded bg-sky-600 px-4 py-1 text-sm text-white data-active:bg-sky-700 data-hover:bg-sky-500"
+      type={'submit'}
+    >
+      대시보드로 이동
+    </DisclosureButton>
+  );
 
   return (
     <div className="min-h-full">
