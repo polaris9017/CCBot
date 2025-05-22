@@ -3,16 +3,16 @@ import { SharedStateContextProvider } from '@/providers/shared-state';
 
 export default function DashboardLayout({
   sidebar,
-  children,
+  board,
 }: {
   sidebar: ReactNode;
-  children: ReactNode;
+  board: ReactNode;
 }) {
   return (
     <SharedStateContextProvider>
       <div className="flex justify-start">
         {sidebar}
-        {children}
+        {board}
       </div>
     </SharedStateContextProvider>
   );
