@@ -44,7 +44,7 @@ export default function Sidebar() {
   const [openedSections, setOpenedSections] = useState<Record<string, boolean>>({
     management: true,
     chat: true,
-    profile: true,
+    member: true,
   });
 
   const toggleSection = (key: string) => {
