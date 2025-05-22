@@ -33,8 +33,8 @@ const menuItems: SectionItem[] = [
   },
   {
     label: '내 정보',
-    key: 'profile',
-    items: [{ label: ' 회원 정보 관리', href: '#', key: 'member' }],
+    key: 'member',
+    items: [{ label: ' 회원 정보 관리', href: '#', key: 'profile' }],
   },
 ];
 
