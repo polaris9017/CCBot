@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
-import { FiMenu, FiX } from 'react-icons/fi';
+import React, { useState } from 'react';
+import { FiChevronDown, FiChevronRight, FiMenu, FiX } from 'react-icons/fi';
 import { useSharedState } from '@/providers/shared-state';
 
 interface NavItem {
@@ -11,23 +11,45 @@ interface NavItem {
   key: string;
 }
 
-const navItems: NavItem[] = [
-  { label: '명령어', href: '#', key: 'commands' },
-  { label: '봇 설정', href: '#', key: 'settings' },
-  { label: '채팅창 오버레이', href: '#', key: 'overlay' },
-  // Add more items if needed
+interface SectionItem {
+  label: string;
+  key: string;
+  items: NavItem[];
+}
+
+const menuItems: SectionItem[] = [
+  {
+    label: '챗봇 관리',
+    key: 'management',
+    items: [
+      { label: '명령어', href: '#', key: 'commands' },
+      { label: '봇 설정', href: '#', key: 'settings' },
+    ],
+  },
+  {
+    label: '채팅창',
+    key: 'chat',
+    items: [{ label: '채팅창 오버레이', href: '#', key: 'overlay' }],
+  },
+  {
+    label: '내 정보',
+    key: 'profile',
+    items: [{ label: ' 회원 정보 관리', href: '#', key: 'member' }],
+  },
 ];
 
 export default function Sidebar() {
+  const { menuItem, setMenuItem } = useSharedState();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { setMenuItem } = useSharedState();
-  const [currentPath, setCurrentPath] = useState<string | null>(null);
+  const [openedSections, setOpenedSections] = useState<Record<string, boolean>>({
+    management: true,
+    chat: true,
+    profile: true,
+  });
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setCurrentPath(window.location.pathname);
-    }
-  }, []);
+  const toggleSection = (key: string) => {
+    setOpenedSections((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
 
   return (
     <div
@@ -51,30 +73,50 @@ export default function Sidebar() {
         </button>
       </div>
 
-      {/* Nav Items */}
-      <nav className="flex flex-col gap-2 p-2">
-        {/* Reference: https://stackoverflow.com/questions/73555618/how-can-i-disable-link-href-in-next-js-on-various-conditions */}
-        {navItems.map((item) => (
-          <Link
-            className={isCollapsed ? 'pointer-events-none' : ''}
-            key={item.key}
-            href={item.href}
-            aria-disabled={isCollapsed}
-            tabIndex={isCollapsed ? -1 : undefined}
-            onClick={() => setMenuItem(item.key)}
-          >
-            <span
-              className={`flex items-center gap-2 cursor-pointer px-4 py-2 rounded hover:bg-gray-700 transition ${
-                currentPath === item.href ? 'bg-gray-700' : ''
-              }`}
-              onClick={() => setMenuItem(item.label)}
+      <div className="flex-1 overflow-y-auto p-2">
+        {menuItems.map((section) => (
+          <section key={section.key} className="mb-4">
+            {/* Section header */}
+            <button
+              className={`flex items-center justify-between w-full text-left text-base text-gray-400 px-4 mb-2 hover:text-white ${isCollapsed ? 'pointer-events-none' : ''}`}
+              aria-disabled={isCollapsed}
+              tabIndex={isCollapsed ? -1 : undefined}
+              onClick={() => toggleSection(section.key)}
             >
-              {/* Optional icon for nav item could go here */}
-              {!isCollapsed && <span>{item.label}</span>}
-            </span>
-          </Link>
+              <span className={`${isCollapsed ? 'hidden' : ''}`}>{section.label}</span>
+              {!isCollapsed &&
+                (openedSections[section.key] ? (
+                  <FiChevronDown size={16} />
+                ) : (
+                  <FiChevronRight size={16} />
+                ))}
+            </button>
+
+            {/* Section items */}
+            {/* Reference: https://stackoverflow.com/questions/73555618/how-can-i-disable-link-href-in-next-js-on-various-conditions */}
+            {openedSections[section.key] && (
+              <nav className="flex flex-col gap-2">
+                {section.items.map((item) => (
+                  <Link
+                    className={isCollapsed ? 'pointer-events-none' : ''}
+                    key={item.key}
+                    href={item.href}
+                    aria-disabled={isCollapsed}
+                    tabIndex={isCollapsed ? -1 : undefined}
+                    onClick={() => setMenuItem(item.key)}
+                  >
+                    <span
+                      className={`flex items-center text-sm indent-2 gap-2 cursor-pointer px-4 py-2 rounded hover:bg-gray-700 transition ${menuItem === item.key && !isCollapsed ? 'bg-gray-700' : ''}`}
+                    >
+                      {!isCollapsed && item.label}
+                    </span>
+                  </Link>
+                ))}
+              </nav>
+            )}
+          </section>
         ))}
-      </nav>
+      </div>
     </div>
   );
 }
