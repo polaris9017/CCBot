@@ -43,6 +43,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       session.user.id = token.id!;
       session.user.uid = token.user.uid as string;
       session.user.channelId = token.user.channelId;
+      session.user.accessToken = token.user.accessToken;
       return session;
     },
   },
@@ -81,6 +82,7 @@ declare module 'next-auth' {
     user?: {
       uid: string;
       channelId?: string;
+      accessToken?: string;
     };
     accessToken?: string;
   }
@@ -98,7 +100,6 @@ declare module 'next-auth/jwt' {
       uid: string;
       channelId?: string;
       accessToken?: string;
-      refreshToken?: string;
     };
     accessToken?: string;
     id?: string;
