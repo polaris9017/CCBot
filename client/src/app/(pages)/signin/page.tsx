@@ -32,7 +32,8 @@ export default function Signin() {
     <CenteredCardContainer
       action={async () => signInWithNaver(callbackUrl)}
       message="서비스 이용을 위해서는 네이버 로그인이 필요합니다."
-      button={loginButton}
-    />
+    >
+      {loginButton}
+    </CenteredCardContainer>
   );
 }
