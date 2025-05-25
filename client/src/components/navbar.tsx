@@ -3,7 +3,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { usePathname } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import {
   Disclosure,
   DisclosureButton,
@@ -23,6 +23,7 @@ function classNames(...classes: string[]) {
 
 export const NavBar = () => {
   const { status, data } = useSession();
+  const router = useRouter();
   const pathName = usePathname();
   const exceptionList = ['/signin', '/register/callback'];
 
@@ -45,6 +46,8 @@ export const NavBar = () => {
         imageUrl:
           'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
       });
+
+      if (pathName === '/') router.push('/dashboard');
     }
   }, [data?.user, status]);
 
