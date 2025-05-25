@@ -10,11 +10,13 @@ export default function BoardLayout({
   settings,
   overlay,
   profile,
+  children,
 }: {
   commands: ReactNode;
   settings: ReactNode;
   overlay: ReactNode;
   profile: ReactNode;
+  children: ReactNode;
 }) {
   const { status } = useSession();
   const { menuItem } = useSharedState();
@@ -22,12 +24,12 @@ export default function BoardLayout({
   if (status === 'unauthenticated') redirect('/signin?callbackUrl=/dashboard');
 
   return (
-    <>
-      {menuItem === '' && 'default'}
+    <div className="min-h-screen flex items-center justify-center w-full">
+      {menuItem === '' && children}
       {menuItem === 'commands' && commands}
       {menuItem === 'settings' && settings}
       {menuItem === 'overlay' && overlay}
       {menuItem === 'profile' && profile}
-    </>
+    </div>
   );
 }
