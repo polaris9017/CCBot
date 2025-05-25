@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FiChevronDown, FiChevronRight, FiMenu, FiX } from 'react-icons/fi';
 import { useSharedState } from '@/providers/shared-state';
 
@@ -40,12 +40,19 @@ const menuItems: SectionItem[] = [
 
 export default function Sidebar() {
   const { menuItem, setMenuItem } = useSharedState();
+  const prevMenuItemRef = useRef<string>('');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [openedSections, setOpenedSections] = useState<Record<string, boolean>>({
     management: true,
     chat: true,
     member: true,
   });
+
+  useEffect(() => {
+    prevMenuItemRef.current = menuItem;
+  }, [menuItem]);
+
+  const prevMenuItem = prevMenuItemRef.current;
 
   const toggleSection = (key: string) => {
     setOpenedSections((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -106,7 +113,7 @@ export default function Sidebar() {
                     onClick={() => setMenuItem(item.key)}
                   >
                     <span
-                      className={`flex items-center text-sm indent-2 gap-2 cursor-pointer px-4 py-2 rounded hover:bg-gray-700 transition ${menuItem === item.key && !isCollapsed ? 'bg-gray-700' : ''}`}
+                      className={`flex items-center text-sm indent-2 gap-2 cursor-pointer px-4 py-2 rounded hover:bg-gray-700 transition ${prevMenuItem === item.key && !isCollapsed ? 'bg-gray-700' : ''}`}
                     >
                       {!isCollapsed && item.label}
                     </span>
