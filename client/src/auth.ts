@@ -43,6 +43,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       session.user.id = token.id!;
       session.user.uid = token.user.uid as string;
       session.user.channelId = token.user.channelId;
+      session.user.channelName = token.user.channelName;
+      session.user.channelImageUrl = token.user.channelImageUrl;
       session.user.accessToken = token.user.accessToken;
       return session;
     },

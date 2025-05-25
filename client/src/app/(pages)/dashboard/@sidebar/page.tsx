@@ -41,7 +41,7 @@ const menuItems: SectionItem[] = [
 export default function Sidebar() {
   const { menuItem, setMenuItem } = useSharedState();
   const prevMenuItemRef = useRef<string>('');
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const [openedSections, setOpenedSections] = useState<Record<string, boolean>>({
     management: true,
     chat: true,
@@ -59,71 +59,90 @@ export default function Sidebar() {
   };
 
   return (
-    <div
-      className={`h-screen bg-gray-800 text-white flex flex-col transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'}`}
-    >
+    <>
       {/* Toggle Button */}
-      <div
-        className={`flex items-center ${!isCollapsed ? 'justify-between' : 'justify-center'} p-4 border-b border-gray-700`}
-      >
-        {!isCollapsed && (
-          <span
-            className={`text-2xl font-bold transition-all duration-300 ${
-              isCollapsed ? 'opacity-0 invisible' : 'opacity-100 visible'
-            }`}
-          >
-            관리 페이지
-          </span>
-        )}
-        <button onClick={() => setIsCollapsed(!isCollapsed)} className="text-white">
-          {isCollapsed ? <FiMenu size={20} /> : <FiX size={20} />}
+      {isCollapsed && (
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="fixed top-4 left-4 z-50 text-white bg-gray-800 p-2 rounded"
+        >
+          <FiMenu size={20} />
         </button>
-      </div>
+      )}
 
-      <div className="flex-1 overflow-y-auto p-2">
-        {menuItems.map((section) => (
-          <section key={section.key} className="mb-4">
-            {/* Section header */}
-            <button
-              className={`flex items-center justify-between w-full text-left text-base text-gray-400 px-4 mb-2 hover:text-white ${isCollapsed ? 'pointer-events-none' : ''}`}
-              aria-disabled={isCollapsed}
-              tabIndex={isCollapsed ? -1 : undefined}
-              onClick={() => toggleSection(section.key)}
+      {/* Backdrop */}
+      {!isCollapsed && (
+        <div onClick={() => setIsCollapsed(true)} className="fixed inset-0 bg-black/60 z-50" />
+      )}
+
+      {/* Overlay sidebar */}
+      {!isCollapsed && (
+        <div className="fixed top-0 left-0 h-full w-64 bg-gray-800 text-white z-50 shadow-lg transition-transform duration-300">
+          {/* Toggle Button */}
+          <div
+            className={`flex items-center ${!isCollapsed ? 'justify-between' : 'justify-center'} p-4 border-b border-gray-700`}
+          >
+            <span
+              className={`text-2xl font-bold transition-all duration-300 ${
+                isCollapsed ? 'opacity-0 invisible' : 'opacity-100 visible'
+              }`}
             >
-              <span className={`${isCollapsed ? 'hidden' : ''}`}>{section.label}</span>
-              {!isCollapsed &&
-                (openedSections[section.key] ? (
-                  <FiChevronDown size={16} />
-                ) : (
-                  <FiChevronRight size={16} />
-                ))}
+              관리 페이지
+            </span>
+            <button onClick={() => setIsCollapsed(!isCollapsed)} className="text-white">
+              <FiX size={20} />
             </button>
+          </div>
 
-            {/* Section items */}
-            {/* Reference: https://stackoverflow.com/questions/73555618/how-can-i-disable-link-href-in-next-js-on-various-conditions */}
-            {openedSections[section.key] && (
-              <nav className="flex flex-col gap-2">
-                {section.items.map((item) => (
-                  <Link
-                    className={isCollapsed ? 'pointer-events-none' : ''}
-                    key={item.key}
-                    href={item.href}
-                    aria-disabled={isCollapsed}
-                    tabIndex={isCollapsed ? -1 : undefined}
-                    onClick={() => setMenuItem(item.key)}
-                  >
-                    <span
-                      className={`flex items-center text-sm indent-2 gap-2 cursor-pointer px-4 py-2 rounded hover:bg-gray-700 transition ${prevMenuItem === item.key && !isCollapsed ? 'bg-gray-700' : ''}`}
-                    >
-                      {!isCollapsed && item.label}
-                    </span>
-                  </Link>
-                ))}
-              </nav>
-            )}
-          </section>
-        ))}
-      </div>
-    </div>
+          <div className="flex-1 overflow-y-auto p-2">
+            {menuItems.map((section) => (
+              <section key={section.key} className="mb-4">
+                {/* Section header */}
+                <button
+                  className={`flex items-center justify-between w-full text-left text-base text-gray-400 px-4 mb-2 hover:text-white ${isCollapsed ? 'pointer-events-none' : ''}`}
+                  aria-disabled={isCollapsed}
+                  tabIndex={isCollapsed ? -1 : undefined}
+                  onClick={() => toggleSection(section.key)}
+                >
+                  <span className={`${isCollapsed ? 'hidden' : ''}`}>{section.label}</span>
+                  {!isCollapsed &&
+                    (openedSections[section.key] ? (
+                      <FiChevronDown size={16} />
+                    ) : (
+                      <FiChevronRight size={16} />
+                    ))}
+                </button>
+
+                {/* Section items */}
+                {/* Reference: https://stackoverflow.com/questions/73555618/how-can-i-disable-link-href-in-next-js-on-various-conditions */}
+                {openedSections[section.key] && (
+                  <nav className="flex flex-col gap-2">
+                    {section.items.map((item) => (
+                      <Link
+                        className={isCollapsed ? 'pointer-events-none' : ''}
+                        key={item.key}
+                        href={item.href}
+                        aria-disabled={isCollapsed}
+                        tabIndex={isCollapsed ? -1 : undefined}
+                        onClick={() => {
+                          setIsCollapsed(true);
+                          setMenuItem(item.key);
+                        }}
+                      >
+                        <span
+                          className={`flex items-center text-sm indent-2 gap-2 cursor-pointer px-4 py-2 rounded hover:bg-gray-700 transition ${prevMenuItem === item.key && !isCollapsed ? 'bg-gray-700' : ''}`}
+                        >
+                          {!isCollapsed && item.label}
+                        </span>
+                      </Link>
+                    ))}
+                  </nav>
+                )}
+              </section>
+            ))}
+          </div>
+        </div>
+      )}
+    </>
   );
 }
