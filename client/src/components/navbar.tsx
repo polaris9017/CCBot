@@ -24,7 +24,7 @@ function classNames(...classes: string[]) {
 export const NavBar = () => {
   const { status, data } = useSession();
   const pathName = usePathname();
-  const exceptionList = ['/signin', '/api/auth/signin'];
+  const exceptionList = ['/signin', '/register/callback'];
 
   const [userNavigation, setUserNavigation] = useState([{ name: '', href: '' }]);
   const [user, setUser] = useState({
