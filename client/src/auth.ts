@@ -38,7 +38,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (trigger === 'update') token.name = session.user.name;
       return token;
     },
-    async session({ session, token }) {
+    session({ session, token }) {
       session.accessToken = token.accessToken;
       session.user.id = token.id!;
       session.user.uid = token.user.uid as string;
@@ -61,14 +61,7 @@ async function backendSignIn(body: { naverUid: string }) {
     const data = (await response.json()) as UserResponse | string;
 
     if (response.ok && typeof data !== 'string') {
-      const { uid, channelId, accessToken, refreshToken } = data;
-
-      return {
-        uid: uid,
-        channelId: channelId,
-        accessToken: accessToken,
-        refreshToken: refreshToken,
-      };
+      return { ...data };
     }
   } catch (e) {
     const error = new CredentialsSignin();
@@ -79,11 +72,7 @@ async function backendSignIn(body: { naverUid: string }) {
 
 declare module 'next-auth' {
   interface Session {
-    user?: {
-      uid: string;
-      channelId?: string;
-      accessToken?: string;
-    };
+    user: Omit<UserResponse, 'refreshToken'>;
     accessToken?: string;
   }
 
@@ -96,11 +85,7 @@ declare module 'next-auth' {
 
 declare module 'next-auth/jwt' {
   interface JWT {
-    user: {
-      uid: string;
-      channelId?: string;
-      accessToken?: string;
-    };
+    user: UserResponse;
     accessToken?: string;
     id?: string;
   }
@@ -109,6 +94,8 @@ declare module 'next-auth/jwt' {
 interface UserResponse {
   uid: string;
   channelId: string;
-  accessToken?: string;
-  refreshToken?: string;
+  channelName?: string;
+  channelImageUrl?: string;
+  accessToken: string;
+  refreshToken: string;
 }
