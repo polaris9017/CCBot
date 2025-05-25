@@ -4,9 +4,10 @@ import BoardPageComponent from '@/app/(pages)/dashboard/@board/BoardPageComponen
 
 async function Board() {
   const session = await getSession();
-  const { uid, channelId } = session!.user!;
+  const uid = session?.user.uid;
+  const channelId = session?.user.channelId;
 
-  return <>{channelId ? channelId : <BoardPageComponent uid={uid} />}</>;
+  return <>{channelId ? channelId : <BoardPageComponent uid={uid!} />}</>;
 }
 
 export default Board;
