@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { SessionProvider } from '@/providers/session';
-import { NavBar } from '@/components/navbar';
+import { SharedStateContextProvider } from '@/providers/shared-state';
+import { NavBar } from '@/components/NavBar';
+import FooterComponent from '@/components/FooterComponent';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -25,11 +27,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ko">
       <SessionProvider>
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-          <NavBar />
-          {children}
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
+        >
+          <SharedStateContextProvider>
+            <NavBar />
+            <main className="flex-grow z-40">{children}</main>
+            <FooterComponent />
+          </SharedStateContextProvider>
         </body>
       </SessionProvider>
     </html>

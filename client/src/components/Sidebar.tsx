@@ -64,7 +64,7 @@ export default function Sidebar() {
       {isCollapsed && (
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="fixed top-4 left-4 z-50 text-white bg-gray-800 p-2 rounded"
+          className="fixed top-4 left-4 z-60 text-white bg-gray-800 p-2 rounded"
         >
           <FiMenu size={20} />
         </button>
@@ -77,7 +77,7 @@ export default function Sidebar() {
 
       {/* Overlay sidebar */}
       {!isCollapsed && (
-        <div className="fixed top-0 left-0 h-full w-64 bg-gray-800 text-white z-50 shadow-lg transition-transform duration-300">
+        <div className="fixed top-0 left-0 h-full w-64 bg-gray-800 text-white z-50 shadow-lg transition-transform duration-300 z-60">
           {/* Toggle Button */}
           <div
             className={`flex items-center ${!isCollapsed ? 'justify-between' : 'justify-center'} p-4 border-b border-gray-700`}

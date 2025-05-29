@@ -15,6 +15,7 @@ import {
 } from '@headlessui/react';
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { FaUser } from 'react-icons/fa';
+import Sidebar from '@/components/Sidebar';
 
 const navigation = [{ name: '대시보드', href: '/dashboard', current: false }];
 
@@ -67,17 +68,18 @@ export const NavBar = () => {
   );
 
   return (
-    <header className="min-h-full w-full fixed top-0 left-0 z-50">
-      <Disclosure as="nav" className="bg-gray-800">
+    <>
+      {status === 'authenticated' && <Sidebar />}
+      <Disclosure as="nav" className="bg-gray-800 sticky top-0 w-full z-50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center">
               <div className="shrink-0">
                 {/*<img
-                  alt="CCBot"
-                  src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
-                  className="size-8"
-                />*/}
+                    alt="CCBot"
+                    src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
+                    className="size-8"
+                  />*/}
               </div>
               <div className="hidden md:block">
                 <div className="ml-10 flex items-baseline space-x-4">
@@ -103,15 +105,15 @@ export const NavBar = () => {
             <div className="hidden md:block">
               <div className="ml-4 flex items-center md:ml-6">
                 {/*{status === 'authenticated' && (
-                  <button
-                    type="button"
-                    className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden"
-                  >
-                    <span className="absolute -inset-1.5" />
-                    <span className="sr-only">View notifications</span>
-                    <BellIcon aria-hidden="true" className="size-6" />
-                  </button>
-                )}*/}
+                    <button
+                      type="button"
+                      className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden"
+                    >
+                      <span className="absolute -inset-1.5" />
+                      <span className="sr-only">View notifications</span>
+                      <BellIcon aria-hidden="true" className="size-6" />
+                    </button>
+                  )}*/}
 
                 {/* Profile dropdown */}
                 <Menu as="div" className="relative ml-3">
@@ -203,13 +205,13 @@ export const NavBar = () => {
                   {/*<div className="text-sm font-medium text-gray-400">{user.email}</div>*/}
                 </div>
                 {/*<button
-                  type="button"
-                  className="relative ml-auto shrink-0 rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden"
-                >
-                  <span className="absolute -inset-1.5" />
-                  <span className="sr-only">View notifications</span>
-                  <BellIcon aria-hidden="true" className="size-6" />
-                </button>*/}
+                    type="button"
+                    className="relative ml-auto shrink-0 rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden"
+                  >
+                    <span className="absolute -inset-1.5" />
+                    <span className="sr-only">View notifications</span>
+                    <BellIcon aria-hidden="true" className="size-6" />
+                  </button>*/}
               </div>
               <div className="mt-3 space-y-1 px-2">
                 {userNavigation.map((item) => (
@@ -227,6 +229,6 @@ export const NavBar = () => {
           </DisclosurePanel>
         )}
       </Disclosure>
-    </header>
+    </>
   );
 };
