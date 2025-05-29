@@ -24,12 +24,15 @@ export default function BoardLayout({
   if (status === 'unauthenticated') redirect('/signin?callbackUrl=/dashboard');
 
   return (
-    <div className="min-h-screen flex items-center justify-center w-full">
+    <>
       {menuItem === '' && children}
       {menuItem === 'commands' && commands}
       {menuItem === 'settings' && settings}
       {menuItem === 'overlay' && overlay}
       {menuItem === 'profile' && profile}
-    </div>
+    </>
+    /*<div className="min-h-screen flex items-center justify-center w-full">
+
+    </div>*/
   );
 }
