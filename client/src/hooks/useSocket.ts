@@ -5,6 +5,7 @@ import { getSession } from '@/serverActions/auth';
 export default function useSocket() {
   const socketRef = useRef<Socket | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
@@ -14,6 +15,7 @@ export default function useSocket() {
         const session = await getSession();
         if (session?.user?.accessToken) {
           setAccessToken(session.user.accessToken);
+          setUserId(session.user.uid);
         } else {
           setError('Access token from session is missing.');
         }
@@ -30,11 +32,13 @@ export default function useSocket() {
     if (!accessToken) return;
 
     try {
-      const socket = io(process.env.BACK_API_URL!, {
-        path: '/chat',
+      const socket = io(`${process.env.BACK_API_CHAT_URL!}/chat`, {
         transports: ['websocket'],
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
+        query: {
+          id: userId,
+        },
         extraHeaders: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -69,7 +73,7 @@ export default function useSocket() {
       setError('Failed to initialize socket.');
       return;
     }
-  }, [accessToken]);
+  }, [accessToken, userId]);
 
   const reconnectSocket = useCallback(() => {
     if (socketRef.current) {
