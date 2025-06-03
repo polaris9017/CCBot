@@ -15,6 +15,12 @@ export type CommandSettingItem = {
   value: boolean;
 };
 
+export type CustomCommandItem = {
+  id: number;
+  name: string;
+  response: string;
+};
+
 export default function CommandsPage() {
   const { data } = useSession();
   const isUnderMaintenance = false;
@@ -24,6 +30,9 @@ export default function CommandsPage() {
     { id: 'memo', name: '!메모 활성화', value: true },
     { id: 'fixed', name: '!고정 활성화', value: true },
     { id: 'custom', name: '커스텀 명령어 사용', value: true },
+  ]);
+  const [customCommands, setCustomCommands] = useState<CustomCommandItem[]>([
+    { id: 1, name: '', response: '' },
   ]);
 
   const isCustomCommandEnabled = commandSettings.some((item) => item.id === 'custom' && item.value);
@@ -62,10 +71,16 @@ export default function CommandsPage() {
       </CardComponent>
       {isCustomCommandEnabled && (
         <CardComponent title="커스텀 명령어">
-          <CardComponent title="명령어 1">
-            <TextItem label="명령어 이름" placeholder={'예: 븜하'} />
-            <TextItem label="명령어 응답 메시지" placeholder="예: $user님 안녕하세요" />
-          </CardComponent>
+          {customCommands.map((command) => (
+            <CardComponent
+              key={`command-${command.id}`}
+              title={`명령어 ${command.id}`}
+              showSaveButton={false}
+            >
+              <TextItem label="명령어 이름" placeholder={'예: 븜하'} />
+              <TextItem label="명령어 응답 메시지" placeholder="예: $user님 안녕하세요" />
+            </CardComponent>
+          ))}
         </CardComponent>
       )}
     </div>
