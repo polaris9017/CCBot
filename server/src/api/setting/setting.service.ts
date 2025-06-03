@@ -13,7 +13,7 @@ export class SettingService {
   ) {}
 
   async createSetting(createSettingDto: CreateSettingDto) {
-    const { uid, settings } = createSettingDto;
+    const { uid } = createSettingDto;
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -26,7 +26,7 @@ export class SettingService {
         throw new ConflictException({ message: 'fail - Setting already exists' });
       }
 
-      const setting = this.settingRepository.create({ uid, settings });
+      const setting = this.settingRepository.create({ ...createSettingDto });
       await queryRunner.manager.save(setting);
       await queryRunner.commitTransaction();
     } catch (err) {
