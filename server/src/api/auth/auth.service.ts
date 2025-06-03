@@ -9,6 +9,7 @@ import { RedisRepository } from 'src/common/redis/redis.repository';
 import { AccessTokenPayload, RefreshTokenPayload } from './auth.interface';
 import { UserView } from '../user/entities/user-view.entity';
 import { CreateUserDto } from '../user/dto/create-user.dto';
+import { SettingService } from '../setting/setting.service';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +17,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly userService: UserService,
+    private readonly settingService: SettingService,
     private readonly redisRepository: RedisRepository
   ) {}
 
@@ -27,6 +29,7 @@ export class AuthService {
     if (!user) {
       const { uid } = await this.userService.createUser(loginUserDto as CreateUserDto);
       user = await this.userService.findUserByUID(uid);
+      await this.settingService.createSetting({ uid: uid });
     }
 
     const accessToken = await this.generateAccessToken(user!);

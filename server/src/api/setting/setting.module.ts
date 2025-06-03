@@ -9,5 +9,6 @@ import { Setting } from './entities/setting.entity';
   imports: [TypeOrmModule.forFeature([Setting]), forwardRef(() => UserModule)],
   controllers: [SettingController],
   providers: [SettingService],
+  exports: [SettingService],
 })
 export class SettingModule {}

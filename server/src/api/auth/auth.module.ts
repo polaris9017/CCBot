@@ -9,6 +9,7 @@ import { UserModule } from '../user/user.module';
 import { JwtGuard } from './guard/jwt.guard';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { RedisRepository } from 'src/common/redis/redis.repository';
+import { SettingModule } from '../setting/setting.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { RedisRepository } from 'src/common/redis/redis.repository';
       useFactory: (configService: ConfigService) => JwtConfig(configService),
     }),
     forwardRef(() => UserModule),
+    forwardRef(() => SettingModule),
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtGuard, JwtStrategy, JwtGuard, RedisRepository],

@@ -12,7 +12,7 @@ export class SettingService {
     private readonly dataSource: DataSource
   ) {}
 
-  async createSetting(createSettingDto: CreateSettingDto) {
+  async createSetting(createSettingDto: Partial<CreateSettingDto>) {
     const { uid } = createSettingDto;
 
     const queryRunner = this.dataSource.createQueryRunner();
