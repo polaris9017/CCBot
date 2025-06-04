@@ -15,11 +15,11 @@ export type CommandSettingItem = {
   value: boolean;
 };
 
-export type CustomCommandItem = {
+export interface CustomCommandItem {
   id: number;
-  name: string;
-  response: string;
-};
+  name?: string;
+  response?: string;
+}
 
 export default function CommandsPage() {
   const { data } = useSession();
@@ -35,6 +35,17 @@ export default function CommandsPage() {
     { id: 1, name: '', response: '' },
   ]);
 
+  const handleCustomCommand = (command: CustomCommandItem) => {
+    setCustomCommands((prevCommands) => {
+      const { name = '', response = '' } = command;
+      const index = prevCommands.findIndex((cmd) => cmd.id === command.id);
+      if (index === -1) return [...prevCommands, { id: prevCommands.length + 1, name, response }];
+
+      const updatedCommands = [...prevCommands];
+      updatedCommands[index] = { ...updatedCommands[index], name, response };
+      return updatedCommands;
+    });
+  };
   const isCustomCommandEnabled = commandSettings.some((item) => item.id === 'custom' && item.value);
 
   return (
@@ -77,8 +88,16 @@ export default function CommandsPage() {
               title={`명령어 ${command.id}`}
               showSaveButton={false}
             >
-              <TextItem label="명령어 이름" placeholder={'예: 븜하'} />
-              <TextItem label="명령어 응답 메시지" placeholder="예: $user님 안녕하세요" />
+              <TextItem
+                label="명령어 이름"
+                placeholder={'예: 븜하'}
+                onChange={(value) => handleCustomCommand({ ...command, name: value })}
+              />
+              <TextItem
+                label="명령어 응답 메시지"
+                placeholder="예: $user님 안녕하세요"
+                onChange={(value) => handleCustomCommand({ ...command, response: value })}
+              />
             </CardComponent>
           ))}
         </CardComponent>
