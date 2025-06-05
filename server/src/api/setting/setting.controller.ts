@@ -25,6 +25,7 @@ export class SettingController {
   ) {}
 
   @Post()
+  @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.CREATED)
   async create(
     @CurrentUser() currentUser: any,
@@ -46,6 +47,7 @@ export class SettingController {
   }
 
   @Patch()
+  @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async update(@CurrentUser() currentUser: any, @Body() updateSettingDto: UpdateSettingDto) {
     const uid = await this.userService.findUserIdByNaverUid(currentUser.naverUid);

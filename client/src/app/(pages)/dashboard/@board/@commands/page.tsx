@@ -9,6 +9,7 @@ import { useSession } from 'next-auth/react';
 import NotificationModal from '@/components/NotificationModal';
 import MenuHeaderItem from '@/components/MenuHeader';
 import CustomButton from '@/components/CustomButton';
+import useApi from '@/hooks/useApi';
 
 export type CommandSettingItem = {
   id: string;
@@ -35,6 +36,10 @@ export default function CommandsPage() {
   const [customCommands, setCustomCommands] = useState<CustomCommandItem[]>([
     { id: 1, name: '', response: '' },
   ]);
+  const { fetch } = useApi('/api/setting', {
+    method: 'PATCH',
+    manual: true,
+  });
 
   const handleCommandSetting = (id: string, value: boolean) => {
     setCommandSettings((prevItems) => {
@@ -72,7 +77,20 @@ export default function CommandsPage() {
       )}
 
       <MenuHeaderItem title="명령어 관리" />
-      <CardComponent title="명령어" showSaveButton={true}>
+      <CardComponent
+        title="명령어"
+        showSaveButton={true}
+        onSave={() =>
+          fetch({
+            body: {
+              activateUptime: commandSettings.find((item) => item.id === 'uptime')?.value,
+              activateMemo: commandSettings.find((item) => item.id === 'memo')?.value,
+              activateFixedMessage: commandSettings.find((item) => item.id === 'fixed')?.value,
+              activateCustomCommands: commandSettings.find((item) => item.id === 'custom')?.value,
+            },
+          })
+        }
+      >
         {commandSettings.map((item) => (
           <ToggleItem
             key={item.id}
@@ -83,7 +101,26 @@ export default function CommandsPage() {
         ))}
       </CardComponent>
       {isCustomCommandEnabled && (
-        <CardComponent title="커스텀 명령어" showSaveButton={true}>
+        <CardComponent
+          title="커스텀 명령어"
+          showSaveButton={true}
+          onSave={() => {
+            const commands = customCommands.reduce(
+              (acc, cmd) => {
+                if (cmd.name && cmd.response) {
+                  acc[cmd.name] = cmd.response;
+                }
+                return acc;
+              },
+              {} as Record<string, string>
+            );
+            fetch({
+              body: {
+                customCommands: commands,
+              },
+            });
+          }}
+        >
           {customCommands.map((command) => (
             <CardComponent key={`command-${command.id}`} title={`명령어 ${command.id}`}>
               <TextItem
@@ -112,7 +149,9 @@ export default function CommandsPage() {
               명령어 추가
             </CustomButton>
             <CustomButton
-              onClick={() => setCustomCommands(customCommands.slice(0, customCommands.length - 1))}
+              onClick={() =>
+                setCustomCommands(customCommands.slice(0, customCommands.length >= 2 ? -1 : 1))
+              }
               variant="danger"
               className="mt-4 w-full"
             >
