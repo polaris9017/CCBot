@@ -27,7 +27,7 @@ export default function BoardSettingsPage() {
       )}
 
       <MenuHeaderItem title="봇 설정" />
-      <CardComponent title="전역 설정">
+      <CardComponent title="전역 설정" showSaveButton={true}>
         <ToggleItem label="봇 활성화" initialValue={true} onChange={setIsBotEnabled} />
       </CardComponent>
     </div>

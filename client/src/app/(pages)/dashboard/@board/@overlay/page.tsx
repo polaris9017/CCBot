@@ -25,7 +25,7 @@ export default function OverlayPage() {
       )}
 
       <ToggleMenuHeaderItem title="채팅창 오버레이 관리" initialValue={true} />
-      <CardComponent title="채팅 디자인">
+      <CardComponent title="채팅 디자인" showSaveButton={true}>
         <SelectboxItem
           label="채팅 디자인"
           optionList={[

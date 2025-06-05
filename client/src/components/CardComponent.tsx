@@ -4,7 +4,7 @@ import CustomButton from '@/components/CustomButton';
 function CardComponent({
   title,
   children,
-  showSaveButton = true,
+  showSaveButton = false,
   onSave,
 }: {
   title: string;

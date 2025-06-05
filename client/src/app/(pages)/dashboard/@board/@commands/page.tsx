@@ -35,6 +35,17 @@ export default function CommandsPage() {
     { id: 1, name: '', response: '' },
   ]);
 
+  const handleCommandSetting = (id: string, value: boolean) => {
+    setCommandSettings((prevItems) => {
+      const index = prevItems.findIndex((item) => item.id === id);
+      if (index === -1) return prevItems;
+
+      const updatedItems = [...prevItems];
+      updatedItems[index] = { ...updatedItems[index], value };
+      return updatedItems;
+    });
+  };
+
   const handleCustomCommand = (command: CustomCommandItem) => {
     setCustomCommands((prevCommands) => {
       const { name = '', response = '' } = command;
@@ -60,34 +71,20 @@ export default function CommandsPage() {
       )}
 
       <MenuHeaderItem title="명령어 관리" />
-      <CardComponent title="명령어">
+      <CardComponent title="명령어" showSaveButton={true}>
         {commandSettings.map((item) => (
           <ToggleItem
             key={item.id}
             label={item.name}
             initialValue={item.value}
-            onChange={(newValue) => {
-              setCommandSettings((prevItems) => {
-                const index = prevItems.findIndex((idx) => idx.id === item.id);
-                if (index === -1) return prevItems;
-
-                const updatedItems = [...prevItems];
-                updatedItems[index] = { ...updatedItems[index], value: newValue };
-
-                return updatedItems;
-              });
-            }}
+            onChange={(value) => handleCommandSetting(item.id, value)}
           />
         ))}
       </CardComponent>
       {isCustomCommandEnabled && (
-        <CardComponent title="커스텀 명령어">
+        <CardComponent title="커스텀 명령어" showSaveButton={true}>
           {customCommands.map((command) => (
-            <CardComponent
-              key={`command-${command.id}`}
-              title={`명령어 ${command.id}`}
-              showSaveButton={false}
-            >
+            <CardComponent key={`command-${command.id}`} title={`명령어 ${command.id}`}>
               <TextItem
                 label="명령어 이름"
                 placeholder={'예: 븜하'}
