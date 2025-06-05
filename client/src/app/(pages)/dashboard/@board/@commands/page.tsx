@@ -8,6 +8,7 @@ import MaintenanceModal from '@/components/MaintenanceModal';
 import { useSession } from 'next-auth/react';
 import NotificationModal from '@/components/NotificationModal';
 import MenuHeaderItem from '@/components/MenuHeader';
+import CustomButton from '@/components/CustomButton';
 
 export type CommandSettingItem = {
   id: string;
@@ -97,6 +98,27 @@ export default function CommandsPage() {
               />
             </CardComponent>
           ))}
+          <div className="flex flex-row justify-between items-center">
+            <CustomButton
+              onClick={() =>
+                setCustomCommands([
+                  ...customCommands,
+                  { id: customCommands.length + 1, name: '', response: '' },
+                ])
+              }
+              variant="primary"
+              className="mt-4 w-full"
+            >
+              명령어 추가
+            </CustomButton>
+            <CustomButton
+              onClick={() => setCustomCommands(customCommands.slice(0, customCommands.length - 1))}
+              variant="danger"
+              className="mt-4 w-full"
+            >
+              명령어 삭제
+            </CustomButton>
+          </div>
         </CardComponent>
       )}
     </div>

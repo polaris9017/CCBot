@@ -23,7 +23,7 @@ export default function CustomButton({
     primary:
       'flex max-w-xs rounded-md h-10 px-5 bg-sky-600 leading-normal data-hover:bg-sky-500 focus-visible:ring-blue-500 transition-colors mt-4',
     danger:
-      'py-2 px-4 bg-red-500 font-semibold rounded-lg hover:bg-red-700 focus:outline-none focus:bg-red-500 focus-visible:ring-red-500 focus-visible:ring-opacity-75',
+      'flex max-w-xs py-2 px-4 bg-red-500 font-semibold rounded-lg hover:bg-red-700 focus:outline-none focus:bg-red-500 focus-visible:ring-red-500 focus-visible:ring-opacity-75',
   };
 
   const isDisabled = disabled ? 'opacity-50 cursor-not-allowed' : '';
