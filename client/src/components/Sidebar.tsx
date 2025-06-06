@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import React, { useEffect, useRef, useState } from 'react';
 import { FiChevronDown, FiChevronRight, FiMenu, FiX } from 'react-icons/fi';
-import { useSharedState } from '@/providers/shared-state';
+import { useSharedState } from '@/providers/SharedState';
 
 interface NavItem {
   label: string;

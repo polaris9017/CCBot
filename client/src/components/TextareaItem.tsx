@@ -6,11 +6,18 @@ import { Textarea } from '@headlessui/react';
 export default function TextareaItem({
   label,
   initialValue = '',
+  onChange,
 }: {
   label: string;
   initialValue?: string;
+  onChange?: (value: string) => void;
 }) {
   const [value, setValue] = useState(initialValue);
+
+  const handleChange = (value: string) => {
+    setValue(value);
+    if (onChange) onChange(value);
+  };
 
   return (
     <div className="flex flex-col justify-between py-2">
@@ -22,7 +29,7 @@ export default function TextareaItem({
         {/* Adjust width as needed */}
         <Textarea
           value={value}
-          onChange={(event) => setValue(event.target.value)}
+          onChange={(event) => handleChange(event.target.value)}
           placeholder="입력"
           className="block w-full resize-y rounded-lg border border-gray-300 bg-white p-3 text-base text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500"
           // You can control resizability with CSS 'resize' property if needed,

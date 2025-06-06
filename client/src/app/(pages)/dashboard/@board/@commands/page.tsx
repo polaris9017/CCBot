@@ -1,48 +1,25 @@
 'use client';
 
-import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 import CardComponent from '@/components/CardComponent';
 import ToggleItem from '@/components/ToggleItem';
 import TextItem from '@/components/TextItem';
 import MaintenanceModal from '@/components/MaintenanceModal';
-import { useSession } from 'next-auth/react';
 import NotificationModal from '@/components/NotificationModal';
 import MenuHeaderItem from '@/components/MenuHeader';
 import CustomButton from '@/components/CustomButton';
-import useApi from '@/hooks/useApi';
-
-export type CommandSettingItem = {
-  id: string;
-  name: string;
-  value: boolean;
-};
-
-export interface CustomCommandItem {
-  id: number;
-  name?: string;
-  response?: string;
-}
+import { CommandSettingItem, CustomCommandItem } from '@/types/dashboard';
+import { useSharedState } from '@/providers/SharedState';
 
 export default function CommandsPage() {
   const { data } = useSession();
   const isUnderMaintenance = false;
   const hasAccess = !!data?.user?.channelId;
-  const [commandSettings, setCommandSettings] = useState<CommandSettingItem[]>([
-    { id: 'uptime', name: '!업타입 활성화', value: true },
-    { id: 'memo', name: '!메모 활성화', value: true },
-    { id: 'fixed', name: '!고정 활성화', value: true },
-    { id: 'custom', name: '커스텀 명령어 사용', value: true },
-  ]);
-  const [customCommands, setCustomCommands] = useState<CustomCommandItem[]>([
-    { id: 1, name: '', response: '' },
-  ]);
-  const { fetch } = useApi('/api/setting', {
-    method: 'PATCH',
-    manual: true,
-  });
+  const { fetch, commandSettings, setCommandSettings, customCommands, setCustomCommands } =
+    useSharedState();
 
   const handleCommandSetting = (id: string, value: boolean) => {
-    setCommandSettings((prevItems) => {
+    setCommandSettings((prevItems: CommandSettingItem[]) => {
       const index = prevItems.findIndex((item) => item.id === id);
       if (index === -1) return prevItems;
 
@@ -53,7 +30,7 @@ export default function CommandsPage() {
   };
 
   const handleCustomCommand = (command: CustomCommandItem) => {
-    setCustomCommands((prevCommands) => {
+    setCustomCommands((prevCommands: CustomCommandItem[]) => {
       const { name = '', response = '' } = command;
       const index = prevCommands.findIndex((cmd) => cmd.id === command.id);
       if (index === -1) return [...prevCommands, { id: prevCommands.length + 1, name, response }];

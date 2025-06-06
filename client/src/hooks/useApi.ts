@@ -1,22 +1,10 @@
 import { useState, useCallback, useEffect } from 'react';
+import { DashboardSettings } from '@/types/dashboard';
 
-export interface UpdateSettingData {
-  activateBot?: boolean;
-  activateUptime?: boolean;
-  activateMemo?: boolean;
-  activateFixedMessage?: boolean;
-  activateCustomCommands?: boolean;
-  customCommands?: Record<string, string> | null;
-  activateChatOverlay?: boolean;
-  chatOverlayDesign?: string;
-  activateChatCustomDesign?: boolean;
-  chatCustomDesignCode?: string | null;
-}
-
-interface FetchOptions {
+export interface FetchOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   headers?: Record<string, string>;
-  body?: UpdateSettingData | string;
+  body?: DashboardSettings | string;
   manual?: boolean; // 수동으로 트리거할지 여부
 }
 

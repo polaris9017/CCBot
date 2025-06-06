@@ -1,9 +1,9 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useSharedState } from '@/providers/shared-state';
+import { useSharedState } from '@/providers/SharedState';
 import { redirect } from 'next/navigation';
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 
 export default function BoardLayout({
   commands,
@@ -19,7 +19,11 @@ export default function BoardLayout({
   children: ReactNode;
 }) {
   const { status } = useSession();
-  const { menuItem } = useSharedState();
+  const { menuItem, fetchSettings } = useSharedState();
+
+  useEffect(() => {
+    fetchSettings();
+  }, [fetchSettings]);
 
   if (status === 'unauthenticated') redirect('/signin?callbackUrl=/dashboard');
 

@@ -1,14 +1,9 @@
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react';
 import { useState } from 'react';
-import { ChevronUpDownIcon } from '@heroicons/react/20/solid'; // You'll need to install @heroicons/react
+import { ChevronUpDownIcon } from '@heroicons/react/20/solid';
+import { OptionItem } from '@/types/dashboard'; // You'll need to install @heroicons/react
 
 // Install heroicons: npm install @heroicons/react
-
-export type OptionItem = {
-  id: number;
-  name: string;
-  value: string;
-};
 
 const options: OptionItem[] = [
   { id: 1, name: 'Value 1', value: 'Value 1' },
@@ -19,16 +14,23 @@ const options: OptionItem[] = [
 function SelectboxItem({
   label,
   optionList = options,
+  onSelect,
 }: {
   label: string;
   optionList?: OptionItem[];
+  onSelect?: (value: OptionItem) => void;
 }) {
   const [selectedOption, setSelectedOption] = useState(optionList[0]);
+
+  const handleSelect = (value: OptionItem) => {
+    setSelectedOption(value);
+    if (onSelect) onSelect(value);
+  };
 
   return (
     <div className="flex items-center justify-between py-2">
       <label className="text-gray-700 mr-4">{label}</label>
-      <Listbox value={selectedOption} onChange={setSelectedOption}>
+      <Listbox value={selectedOption} onChange={handleSelect}>
         <div className="relative flex-grow">
           <ListboxButton className="relative w-full cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm">
             <span className="block truncate">{selectedOption.name}</span>

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { SessionProvider } from '@/providers/session';
-import { SharedStateContextProvider } from '@/providers/shared-state';
+import { SharedStateContextProvider } from '@/providers/SharedState';
 import { NavBar } from '@/components/NavBar';
 import FooterComponent from '@/components/FooterComponent';
 

@@ -1,25 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 import CardComponent from '@/components/CardComponent';
 import ToggleItem from '@/components/ToggleItem';
 import MenuHeaderItem from '@/components/MenuHeader';
 import MaintenanceModal from '@/components/MaintenanceModal';
 import NotificationModal from '@/components/NotificationModal';
-import { useSession } from 'next-auth/react';
-import useApi from '@/hooks/useApi';
+import { useSharedState } from '@/providers/SharedState';
 
 export default function BoardSettingsPage() {
   const { data } = useSession();
+  const { fetch, isBotEnabled, setIsBotEnabled } = useSharedState();
 
-  const [isBotEnabled, setIsBotEnabled] = useState(true);
   const isUnderMaintenance = false;
   const hasAccess = !!data?.user?.channelId;
 
-  const { fetch } = useApi('/api/setting', {
-    method: 'PATCH',
-    manual: true,
-  });
+  const handleChange = (value: boolean) => {
+    setIsBotEnabled(value);
+    fetch({ body: { activateBot: value } });
+  };
 
   return (
     <div className="w-screen mx-auto p-4 bg-gray-50">
@@ -34,14 +33,7 @@ export default function BoardSettingsPage() {
 
       <MenuHeaderItem title="봇 설정" />
       <CardComponent title="전역 설정">
-        <ToggleItem
-          label="봇 활성화"
-          initialValue={true}
-          onChange={() => {
-            fetch({ body: { activateBot: !isBotEnabled } });
-            setIsBotEnabled(!isBotEnabled);
-          }}
-        />
+        <ToggleItem label="봇 활성화" initialValue={isBotEnabled} onChange={handleChange} />
       </CardComponent>
     </div>
   );
