@@ -3,7 +3,9 @@
 'use client';
 
 import Link from 'next/link';
-import { ReactNode } from 'react';
+import Error from 'next/error';
+import * as Sentry from '@sentry/nextjs';
+import { ReactNode, useEffect } from 'react';
 import ErrorPageContainer from '@/components/ErrorPageContainer';
 
 export default function GlobalError({
@@ -13,6 +15,10 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  useEffect(() => {
+    Sentry.captureException(error);
+  }, [error]);
+
   const links: ReactNode[] = [
     <Link
       href=""

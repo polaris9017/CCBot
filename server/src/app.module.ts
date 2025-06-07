@@ -8,6 +8,8 @@ import { ChatModule } from './api/chat/chat.module';
 import { SettingModule } from './api/setting/setting.module';
 import { WinstonLoggerModule } from './common/logger/winston-logger.module';
 import { WinstonLoggerMiddleware } from './common/logger/winston-logger.middleware';
+import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup';
+import { APP_FILTER } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -20,13 +22,19 @@ import { WinstonLoggerMiddleware } from './common/logger/winston-logger.middlewa
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => typeORMConfig(configService),
     }),
+    SentryModule.forRoot(),
     AuthModule,
     UserModule,
     SettingModule,
     ChatModule,
     WinstonLoggerModule,
   ],
-  providers: [],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: SentryGlobalFilter,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {

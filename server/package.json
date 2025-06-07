@@ -20,7 +20,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "typeorm:create": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:create src/migrations/migration",
     "typeorm:generate": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --dataSource src/common/datasource.config.ts migration:generate src/migrations/migration",
-    "typeorm:migrate": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --dataSource src/common/datasource.config.ts migration:run"
+    "typeorm:migrate": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --dataSource src/common/datasource.config.ts migration:run",
+    "sentry:upload": "npx @sentry/wizard@latest -i sourcemaps"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -33,6 +34,7 @@
     "@nestjs/platform-socket.io": "^11.1.0",
     "@nestjs/typeorm": "^11.0.0",
     "@nestjs/websockets": "^11.1.0",
+    "@sentry/nestjs": "^9.27.0",
     "@types/bcrypt": "^5.0.2",
     "@types/passport-jwt": "^4.0.1",
     "axios": "^1.8.4",
