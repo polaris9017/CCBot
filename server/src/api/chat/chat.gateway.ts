@@ -39,7 +39,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleConnection(@ConnectedSocket() client: Socket) {
     try {
       const userId = client.handshake.query?.id as string;
-      const token = (client.handshake.headers?.authorization as string)?.split(' ')[1];
+      const authHeader = client.handshake.auth.token as string;
+      const token = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : authHeader;
+
+      console.log(`[ChatGateway] Connection attempt from user: ${userId}`);
 
       if (!userId || !token) {
         console.log('[ChatGateway] Missing userId or token');
@@ -47,7 +50,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return;
       }
 
-      const tokenPayload = this.jwtService.verify(token);
+      let tokenPayload;
+      try {
+        tokenPayload = this.jwtService.verify(token);
+      } catch (error) {
+        console.error('[ChatGateway] Token verification failed:', error);
+        client.disconnect();
+        return;
+      }
       const userInfoFromToken = await this.userService.findUserByUID(tokenPayload?.id);
 
       if (!userInfoFromToken || userInfoFromToken.uid !== userId) {
@@ -66,15 +76,24 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  async handleDisconnect(@ConnectedSocket() client: Socket) {
+  handleDisconnect(@ConnectedSocket() client: Socket) {
     const userId = client.handshake.query?.id as string;
     if (userId) {
+      console.log(`[ChatGateway] Disconnecting user: ${userId}`);
       this.clients.delete(userId);
 
       const externalSocket = this.externalSockets.get(userId);
       if (externalSocket) {
-        externalSocket.disconnect();
-        this.externalSockets.delete(userId);
+        try {
+          if (externalSocket.connected) externalSocket.disconnect();
+          this.externalSockets.delete(userId);
+          console.log(`[ChatGateway] External socket cleaned up for user ${userId}`);
+        } catch (error) {
+          console.error(
+            `[ChatGateway] Error cleaning up external socket for user ${userId}:`,
+            error
+          );
+        }
       }
 
       console.log(`[ChatGateway] ${userId} disconnected`);
@@ -83,6 +102,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   private async setupExternalSocket(userId: string) {
     try {
+      const existingSocket = this.externalSockets.get(userId);
+      if (existingSocket && existingSocket.connected) {
+        existingSocket.disconnect();
+        this.externalSockets.delete(userId);
+      }
+
       const accessToken = await this.redisRepository.get(`accessToken/chzzk:${userId}`);
       if (!accessToken) {
         console.error(`[ChatGateway] No access token found for user ${userId}`);
@@ -118,28 +143,53 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const externalSocket = io(socketUrl, socketOptions);
       this.externalSockets.set(userId, externalSocket);
 
+      const connectTimeout = setTimeout(() => {
+        if (!externalSocket.connected) {
+          console.error(`[ChatGateway] External socket connection timed out for user ${userId}`);
+          externalSocket.disconnect();
+          this.externalSockets.delete(userId);
+        }
+      }, 10000);
+
       externalSocket.on('connect', () => {
+        clearTimeout(connectTimeout);
         console.log(`[ChatGateway] External socket connected for user ${userId}`);
       });
 
       externalSocket.on('connect_error', (error: any) => {
+        clearTimeout(connectTimeout);
         console.error(`[ChatGateway] External socket connection error for user ${userId}:`, error);
+        this.externalSockets.delete(userId);
       });
 
       externalSocket.on('SYSTEM', async (payload: any) => {
-        await this.handleSystemMessage(payload, userId);
+        try {
+          await this.handleSystemMessage(payload, userId);
+        } catch (error) {
+          console.error(`[ChatGateway] Error handling system message for user ${userId}:`, error);
+        }
       });
 
       externalSocket.on('disconnect', (reason: string) => {
+        clearTimeout(connectTimeout);
         console.log(`[ChatGateway] External socket disconnected for user ${userId}:`, reason);
+        this.externalSockets.delete(userId);
       });
 
       externalSocket.on('CHAT', (payload: any) => {
-        this.emitToUser(userId, 'CHAT', payload);
+        try {
+          this.emitToUser(userId, 'CHAT', payload);
+        } catch (error) {
+          console.error(`[ChatGateway] Error handling chat message for user ${userId}:`, error);
+        }
       });
 
       externalSocket.on('DONATION', (payload: any) => {
-        this.emitToUser(userId, 'DONATION', payload);
+        try {
+          this.emitToUser(userId, 'DONATION', payload);
+        } catch (error) {
+          console.error(`[ChatGateway] Error handling donation message for user ${userId}:`, error);
+        }
       });
     } catch (error) {
       console.error('[ChatGateway] External socket setup error:', error);
@@ -147,39 +197,50 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   private async handleSystemMessage(payload: any, userId: string) {
-    const parsedPayload = JSON.parse(payload) as SocketSystemMessage;
-    if (parsedPayload.data.sessionKey && parsedPayload.type === 'connected') {
-      const sessionKey = parsedPayload.data.sessionKey;
+    try {
+      const parsedPayload = JSON.parse(payload) as SocketSystemMessage;
+      if (parsedPayload.data.sessionKey && parsedPayload.type === 'connected') {
+        const sessionKey = parsedPayload.data.sessionKey;
+        const accessToken = await this.redisRepository.get(`accessToken/chzzk:${userId}`);
 
-      try {
-        await axios.post(
-          `https://openapi.chzzk.naver.com/open/v1/sessions/events/subscribe/chat?sessionKey=${sessionKey}`,
-          null,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${await this.redisRepository.get(`accessToken/chzzk:${userId}`)}`,
-            },
-          }
-        );
-        await axios.post(
-          `https://openapi.chzzk.naver.com/open/v1/sessions/events/subscribe/donation?sessionKey=${sessionKey}`,
-          null,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${await this.redisRepository.get(`accessToken/chzzk:${userId}`)}`,
-            },
-          }
-        );
-      } catch (error) {
-        console.error('[ChatGateway] Subscription error:', error);
+        if (!accessToken) {
+          console.error(`[ChatGateway] No access token found or expired for user ${userId}`);
+          return;
+        }
+
+        const headers = {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        };
+
+        const subscriptionPromises = [
+          await axios.post(
+            `https://openapi.chzzk.naver.com/open/v1/sessions/events/subscribe/chat?sessionKey=${sessionKey}`,
+            null,
+            {
+              headers,
+              timeout: 5000,
+            }
+          ),
+          await axios.post(
+            `https://openapi.chzzk.naver.com/open/v1/sessions/events/subscribe/donation?sessionKey=${sessionKey}`,
+            null,
+            {
+              headers,
+              timeout: 5000,
+            }
+          ),
+        ];
+
+        await Promise.allSettled(subscriptionPromises);
       }
-    }
 
-    if (parsedPayload.type === 'subscribed') {
-      if (parsedPayload.data.eventType === 'CHAT') console.log('Chat event subscribed!');
-      if (parsedPayload.data.eventType === 'DONATION') console.log('Donation event subscribed!');
+      if (parsedPayload.type === 'subscribed') {
+        if (parsedPayload.data.eventType === 'CHAT') console.log('Chat event subscribed!');
+        if (parsedPayload.data.eventType === 'DONATION') console.log('Donation event subscribed!');
+      }
+    } catch (error) {
+      console.error('[ChatGateway] Subscription error:', error);
     }
   }
 

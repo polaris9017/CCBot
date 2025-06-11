@@ -1,18 +1,34 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 
 interface ChatItemProps {
   nickname: string;
-  message: string;
   color: string;
+  content: string;
 }
 
-export default function ChatItem({ nickname, message, color }: ChatItemProps) {
+export default function ChatItem({ nickname, content, color }: ChatItemProps) {
+  const containerStyle: CSSProperties = {
+    paddingLeft: '12px', // px-3
+    paddingRight: '12px',
+    paddingTop: '4px', // py-1
+    paddingBottom: '4px',
+    display: 'flex',
+    alignItems: 'center',
+    width: 'fit-content',
+    maxWidth: '90%',
+    gap: '4px', // space-x-1
+  };
+
+  const textStyle: CSSProperties = {
+    color: color === 'blue-500' ? '#3b82f6' : color === 'white' ? '#ffffff' : color,
+    fontWeight: '600', // font-semibold
+    fontSize: '27px', // text-2xl
+    lineHeight: '32px',
+  };
+
   return (
-    <div className="bg-gray-300 rounded-full px-6 py-2 flex items-center w-fit max-w-[90%] space-x-4">
-      <span className={`font-bold`} style={{ color }}>
-        {nickname}
-      </span>
-      <span className="text-black font-semibold">{message}</span>
+    <div style={containerStyle}>
+      <span style={textStyle}>{content}</span>
     </div>
   );
 }
