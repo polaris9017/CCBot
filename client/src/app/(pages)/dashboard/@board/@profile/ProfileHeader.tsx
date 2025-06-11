@@ -1,6 +1,5 @@
 import React from 'react';
 import Avatar from './Avatar';
-import CustomButton from '@/components/CustomButton';
 
 interface User {
   username: string;
@@ -10,10 +9,9 @@ interface User {
 
 interface ProfileHeaderProps {
   user: User;
-  onUpdateProfile: () => void;
 }
 
-export default function ProfileHeader({ user, onUpdateProfile }: ProfileHeaderProps) {
+export default function ProfileHeader({ user }: ProfileHeaderProps) {
   return (
     <div className="p-6 sm:p-8">
       <div className="flex flex-col sm:flex-row items-center gap-6">
@@ -27,14 +25,6 @@ export default function ProfileHeader({ user, onUpdateProfile }: ProfileHeaderPr
               </p>
               <p className="text-slate-600 text-sm sm:text-base">{user.username}</p>
             </div>
-
-            <CustomButton
-              variant="primary"
-              onClick={onUpdateProfile}
-              className="mt-4 sm:mt-0 sm:ml-auto"
-            >
-              프로필 업데이트
-            </CustomButton>
           </div>
         </div>
       </div>
