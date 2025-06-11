@@ -5,7 +5,7 @@ import React from 'react';
 
 export default function BoardPageComponent({ uid }: { uid: string }) {
   const handleClick = () => {
-    window.location.href = `https://chzzk.naver.com/account-interlock?clientId=${process.env.NEXT_PUBLIC_CHZZK_CLIENT_ID}&redirectUri=${process.env.NEXT_PUBLIC_CLIENT_URL}/register/callback&state=${uid}`;
+    window.location.href = `${process.env.NEXT_PUBLIC_BACK_API_URL}/auth/login/chzzk?id=${uid}&redirectUrl=${process.env.NEXT_PUBLIC_CLIENT_URL}/register`;
   };
 
   return (

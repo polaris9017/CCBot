@@ -10,6 +10,7 @@ import { AccessTokenPayload, RefreshTokenPayload } from './auth.interface';
 import { UserView } from '../user/entities/user-view.entity';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { SettingService } from '../setting/setting.service';
+import { AuthResponse, ChannelInfoResponse, UserInfoResponse } from '../user/user.interface';
 
 @Injectable()
 export class AuthService {
@@ -74,21 +75,43 @@ export class AuthService {
     }
   }
 
-  async validateChzzk(state, req) {
-    const accessToken = req.content.accessToken;
-    const refreshToken = req.content.refreshToken;
+  async validateChzzk(userId: string, req: AuthResponse) {
+    const { accessToken, refreshToken } = req.content!;
 
-    const profileResponse = await axios.get('https://openapi.chzzk.naver.com/open/v1/users/me', {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
+    const profileResponse = await axios.get(
+      `${this.configService.get<string>('CHZZK_API_URL')}/open/v1/users/me`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    const { channelId } = (profileResponse.data as UserInfoResponse).content!;
+    const channelInfoResponse = await axios.get(
+      `${this.configService.get<string>('CHZZK_API_URL')}/open/v1/channels`,
+      {
+        params: { channelIds: channelId },
+        headers: {
+          'Client-Id': process.env.CHZZK_CLIENT_ID,
+          'Client-Secret': process.env.CHZZK_CLIENT_SECRET,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    const { channelName, channelImageUrl } = (channelInfoResponse.data as ChannelInfoResponse)
+      .content!.data[0]; // 프론트와 달리 배열 처리해야 정상 작동
+    const naverUid = (await this.userService.findUserByUID(userId))?.naverUid;
+    await this.userService.updateUser(naverUid!, {
+      channelId,
+      channelName,
+      channelImageUrl: channelImageUrl ?? '',
     });
 
-    await this.userService.setUserChannelId(state, profileResponse.data.content.channelId);
-
-    await this.redisRepository.set(`accessToken/chzzk:${state}`, accessToken, 60 * 60 * 24);
-    await this.redisRepository.set(`refreshToken/chzzk:${state}`, refreshToken, 60 * 60 * 24 * 30);
+    await this.redisRepository.set(`accessToken/chzzk:${userId}`, accessToken, 60 * 60 * 24);
+    await this.redisRepository.set(`refreshToken/chzzk:${userId}`, refreshToken, 60 * 60 * 24 * 30);
   }
 
   private async generateAccessToken(user: UserView): Promise<string> {

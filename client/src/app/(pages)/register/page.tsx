@@ -10,7 +10,7 @@ export default function Register() {
     setPrevUrl(document.referrer);
   }, []);
 
-  return !!prevUrl && prevUrl.includes('/register/callback') ? (
+  return !!prevUrl && prevUrl.includes('/login/chzzk/callback') ? (
     <CenteredCardContainer
       action={() => redirect('/api/auth/signout?callbackUrl=/signin')}
       message="인증이 완료되었습니다. 사용을 위해서 다시 로그인해주세요"

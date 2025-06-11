@@ -14,6 +14,7 @@ import axios from 'axios';
 import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
 import { LoginUserDto } from './dto/login-user.dto';
+import { AuthResponse } from '../user/user.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -49,7 +50,12 @@ export class AuthController {
     const authorizationURL = 'https://chzzk.naver.com/account-interlock';
     const callbackURL = `${this.configService.get<string>('HOST')}/auth/login/chzzk/callback`;
     const clientId = this.configService.get<string>('CHZZK_CLIENT_ID');
-    const state = req.query.id;
+    const state = Buffer.from(
+      JSON.stringify({
+        userId: req.query.id as string,
+        redirectUrl: req.query.redirectUrl || '',
+      })
+    ).toString('base64');
 
     res.redirect(
       `${authorizationURL}?clientId=${clientId}&redirectUri=${callbackURL}&state=${state}`
@@ -59,16 +65,27 @@ export class AuthController {
   @Get('login/chzzk/callback')
   async chzzkLoginCallback(@Req() req: Request, @Res() res: Response) {
     const { code, state } = req.query;
+    const { userId, redirectUrl } = JSON.parse(Buffer.from(state as string, 'base64').toString());
 
-    const tokenResponse = await axios.post('https://openapi.chzzk.naver.com/auth/v1/token', {
-      grantType: 'authorization_code',
-      clientId: this.configService.get<string>('CHZZK_CLIENT_ID'),
-      clientSecret: this.configService.get<string>('CHZZK_CLIENT_SECRET'),
-      code,
-      state,
-    });
-    await this.authService.validateChzzk(state, tokenResponse.data);
+    const tokenResponse = await axios.post(
+      `${this.configService.get<string>('CHZZK_API_URL')}/auth/v1/token`,
+      {
+        grantType: 'authorization_code',
+        clientId: this.configService.get<string>('CHZZK_CLIENT_ID'),
+        clientSecret: this.configService.get<string>('CHZZK_CLIENT_SECRET'),
+        code,
+        state,
+      }
+    );
+    await this.authService.validateChzzk(userId as string, tokenResponse.data as AuthResponse);
 
-    res.json({ state: HttpStatus.OK, data: 'success' });
+    if (redirectUrl && redirectUrl !== '') {
+      res.redirect(redirectUrl as string);
+    } else {
+      res.json({
+        status: HttpStatus.OK,
+        message: 'success',
+      });
+    }
   }
 }
