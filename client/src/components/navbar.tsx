@@ -27,7 +27,7 @@ export const NavBar = () => {
   const { status, data } = useSession();
   const router = useRouter();
   const pathName = usePathname();
-  const exceptionList = ['/signin', '/register/callback'];
+  const exceptionList = ['/signin', '/chat'];
 
   const [userNavigation, setUserNavigation] = useState([{ name: '', href: '' }]);
   const [user, setUser] = useState({

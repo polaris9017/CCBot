@@ -1,10 +1,17 @@
+'use client';
+
 import React, { useMemo } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export default function FooterComponent() {
+  const pathName = usePathname();
   const startYear: number = 2025;
   const currentYear = useMemo(() => new Date().getFullYear(), []);
   const copyrightSubject = 'CCBot by polaris9017';
+  const exceptionList = ['/signin', '/chat'];
+
+  if (exceptionList.includes(pathName)) return <></>;
 
   return (
     <footer className="sticky bottom-0 flex flex-row justify-between w-full bg-gray-200 border-t border-gray-200 z-50">
