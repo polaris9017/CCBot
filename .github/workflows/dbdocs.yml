@@ -19,4 +19,4 @@ jobs:
       - name: 'Update dbdocs project'
         env:
           DBDOCS_TOKEN: ${{secrets.TOKEN_DBDOCS}}
-        run: dbdocs build ./server/schemes/ccbot.dbml --project=${{secrets.PROJECT_DBDOCS}}
+        run: dbdocs build ./server/schemes/ccbot.dbml --project=CCBot
