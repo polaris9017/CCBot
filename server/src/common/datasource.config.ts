@@ -3,10 +3,7 @@ import { DataSource } from 'typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
 dotenv.config({
-  path:
-    process.env.NODE_ENV === 'production'
-      ? '.production.env'
-      : '.development.env',
+  path: process.env.NODE_ENV === 'production' ? '.production.env' : '.development.env',
 });
 
 export const dataSource = new DataSource({
@@ -16,7 +13,7 @@ export const dataSource = new DataSource({
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  entities: [__dirname + '/../../**/*.entity.{js,ts}'],
+  entities: [__dirname + '/../**/*.entity.ts'],
   synchronize: process.env.DB_SYNCHRONIZE === 'true',
   namingStrategy: new SnakeNamingStrategy(),
   migrationsTableName: 'migrations',
