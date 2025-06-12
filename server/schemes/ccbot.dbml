@@ -1,0 +1,64 @@
+Enum "setting_chat_overlay_design_enum" {
+  "default"
+  "transparent"
+  "dark"
+  "custom"
+}
+
+Table "migrations" {
+  "id" int [pk, not null, increment]
+  "timestamp" bigint [not null]
+  "name" varchar(255) [not null]
+}
+
+Table "setting" {
+  "id" int [pk, not null, increment]
+  "uid" varchar(8) [unique, not null]
+  "activate_bot" tinyint [not null, default: 1]
+  "activate_uptime" tinyint [not null, default: 1]
+  "activate_memo" tinyint [not null, default: 1]
+  "activate_fixed_message" tinyint [not null, default: 1]
+  "activate_custom_commands" tinyint [not null, default: 0]
+  "custom_commands" json
+  "activate_chat_overlay" tinyint [not null, default: 1]
+  "chat_overlay_design" setting_chat_overlay_design_enum [not null, default: 'default']
+  "activate_chat_custom_design" tinyint [not null, default: 0]
+  "chat_custom_design_code" text
+  "created_at" timestamp(6) [not null, default: `CURRENT_TIMESTAMP(6)`]
+  "updated_at" "timestamp(6) on update CURRENT_TIMESTAMP" [not null, default: `CURRENT_TIMESTAMP(6)`]
+}
+
+Table "typeorm_metadata" {
+  "type" varchar(255) [not null]
+  "database" varchar(255)
+  "schema" varchar(255)
+  "table" varchar(255)
+  "name" varchar(255)
+  "value" text
+}
+
+Table "user" {
+  "id" int [pk, not null, increment]
+  "naver_uid" varchar(100) [unique, not null]
+  "uid" varchar(8) [unique, not null]
+  "created_at" timestamp(6) [not null, default: `CURRENT_TIMESTAMP(6)`]
+  "updated_at" "timestamp(6) on update CURRENT_TIMESTAMP" [not null, default: `CURRENT_TIMESTAMP(6)`]
+}
+
+Table "user_info" {
+  "id" int [not null, increment]
+  "user_id" int [not null]
+  "channel_id" varchar(80) [unique]
+  "channel_name" text
+  "channel_image_url" text
+  "created_at" timestamp(6) [not null, default: `CURRENT_TIMESTAMP(6)`]
+  "updated_at" "timestamp(6) on update CURRENT_TIMESTAMP" [not null, default: `CURRENT_TIMESTAMP(6)`]
+
+  Indexes {
+    (id, user_id) [pk, name: "PRIMARY"]
+  }
+}
+
+Ref "FK_87cc8231c594815fee652311e04":"user"."uid" < "setting"."uid" [delete: cascade]
+
+Ref "FK_59c55ac40f267d450246040899e":"user"."id" < "user_info"."user_id" [delete: cascade]
