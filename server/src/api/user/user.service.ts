@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import * as crypto from 'crypto';
+import * as crypto from 'src/common/utils/crypto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -31,12 +31,16 @@ export class UserService {
     await queryRunner.startTransaction();
 
     try {
-      const existingUser = await this.userRepository.existsBy({ naverUid });
+      const uid = crypto.generateUserId(naverUid);
+      const existingUser = await this.userRepository.existsBy({ uid });
       if (existingUser) {
         throw new ConflictException({ message: 'fail - User already exists' });
       }
 
-      const user = this.userRepository.create({ naverUid, uid: this.generateUserId(naverUid) });
+      const user = this.userRepository.create({
+        uid,
+        naverUid: await crypto.encryptValue(naverUid),
+      });
       const savedUser = await queryRunner.manager.save(user);
 
       const userInfo = this.userInfoRepository.create({
@@ -52,7 +56,7 @@ export class UserService {
       await queryRunner.release();
     }
 
-    return { uid: this.generateUserId(naverUid) };
+    return { uid: crypto.generateUserId(naverUid) };
   }
 
   async findUserByUID(id: string) {
@@ -63,20 +67,6 @@ export class UserService {
     });
 
     return user;
-  }
-
-  async findUserByNaverUid(naverUid: string) {
-    const user = await this.userViewRepository.findOne({
-      where: { naverUid },
-    });
-
-    return user;
-  }
-
-  async findUserIdByNaverUid(naverUid: string) {
-    const user = await this.findUserByNaverUid(naverUid);
-    if (!user) throw new NotFoundException('fail - User not found');
-    return user.uid;
   }
 
   async setUserChannelId(uid: string, channelId: string) {
@@ -106,20 +96,5 @@ export class UserService {
     }
 
     await this.userRepository.delete({ naverUid: id });
-  }
-
-  private generateUserId(input: string): string {
-    // Create a SHA-256 hash and convert to base36 (0-9, a-z)
-    const hash = crypto.createHash('sha256').update(input).digest('hex');
-
-    // Convert hex to base62 (a mix of a-z, A-Z, 0-9)
-    const base62Chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    let hashedString = '';
-    for (let i = 0; i < hash.length; i += 2) {
-      const decimal = parseInt(hash.slice(i, i + 2), 16);
-      hashedString += base62Chars[decimal % 62];
-    }
-
-    return hashedString.slice(0, 8); // Return first 8 characters
   }
 }

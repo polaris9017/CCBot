@@ -16,6 +16,7 @@ import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { UserService } from '../user/user.service';
 import { Response } from 'express';
 import { JwtGuard } from '../auth/guard/jwt.guard';
+import * as crypto from 'src/common/utils/crypto';
 
 @Controller('setting')
 export class SettingController {
@@ -33,16 +34,30 @@ export class SettingController {
     @Res() res: Response
   ) {
     const { settings } = createSettingDto;
-    const uid = await this.userService.findUserIdByNaverUid(currentUser.naverUid);
+    const uid = crypto.generateUserId(currentUser.naverUid);
+    const user = await this.userService.findUserByUID(uid);
+
+    if (!user) {
+      res.status(HttpStatus.NOT_FOUND).json({
+        status: HttpStatus.NOT_FOUND,
+        message: 'fail - User not found',
+      });
+    }
     res.json(await this.settingService.createSetting({ uid, settings }));
   }
 
   @Get()
   @UseGuards(JwtGuard)
   async find(@CurrentUser() currentUser: any, @Res() res: Response) {
-    const uid = await this.userService.findUserIdByNaverUid(currentUser.naverUid);
+    const uid = crypto.generateUserId(currentUser.naverUid);
     const setting = await this.settingService.findSetting(uid);
 
+    if (!setting) {
+      res.status(HttpStatus.NOT_FOUND).json({
+        status: HttpStatus.NOT_FOUND,
+        message: 'fail - Setting not found',
+      });
+    }
     res.status(HttpStatus.OK).json({ status: HttpStatus.OK, data: setting });
   }
 
@@ -50,7 +65,7 @@ export class SettingController {
   @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async update(@CurrentUser() currentUser: any, @Body() updateSettingDto: UpdateSettingDto) {
-    const uid = await this.userService.findUserIdByNaverUid(currentUser.naverUid);
+    const uid = crypto.generateUserId(currentUser.naverUid);
     return await this.settingService.updateSetting(uid, updateSettingDto);
   }
 }

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import * as bcrypt from 'bcrypt';
+import * as crypto from 'src/common/utils/crypto';
 import { JwtService } from '@nestjs/jwt';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -24,11 +24,15 @@ export class AuthService {
 
   async login(loginUserDto: LoginUserDto) {
     const { naverUid } = loginUserDto;
+    const uid = crypto.generateUserId(naverUid);
 
-    let user = await this.userService.findUserByNaverUid(naverUid);
+    let user = await this.userService.findUserByUID(uid);
+    if (!(await crypto.verifyValue(naverUid, user?.naverUid!))) {
+      throw new UnauthorizedException({ message: 'fail - Invalid user credentials' });
+    }
 
     if (!user) {
-      const { uid } = await this.userService.createUser(loginUserDto as CreateUserDto);
+      await this.userService.createUser(loginUserDto as CreateUserDto);
       user = await this.userService.findUserByUID(uid);
       await this.settingService.createSetting({ uid: uid });
     }
@@ -38,7 +42,7 @@ export class AuthService {
 
     await this.redisRepository.set(
       `refreshToken:${user!.uid}`,
-      await this.encryptValue(refreshToken),
+      await crypto.encryptValue(refreshToken),
       60 * 60 * 24 * 30
     );
 
@@ -57,7 +61,7 @@ export class AuthService {
       if (!user) throw new UnauthorizedException();
 
       const storedRefreshToken = await this.redisRepository.get(`refreshToken:${user.uid}`);
-      const isValidToken = await this.verifyValue(refreshToken, storedRefreshToken!);
+      const isValidToken = await crypto.verifyValue(refreshToken, storedRefreshToken!);
       if (!isValidToken) throw new UnauthorizedException();
 
       const newAccessToken = await this.generateAccessToken(user);
@@ -65,7 +69,7 @@ export class AuthService {
 
       await this.redisRepository.set(
         `refreshToken:${user.uid}`,
-        await this.encryptValue(newRefreshToken),
+        await crypto.encryptValue(newRefreshToken),
         60 * 60 * 24 * 30
       );
 
@@ -131,15 +135,5 @@ export class AuthService {
       secret: this.configService.get<string>('REFRESH_TOKEN_SECRET_KEY'),
       expiresIn: this.configService.get<string>('REFRESH_TOKEN_EXPIRES_IN'),
     });
-  }
-
-  private async encryptValue(value: string, rounds: number = 10): Promise<string> {
-    const salt = await bcrypt.genSalt(rounds);
-
-    return await bcrypt.hash(value, salt);
-  }
-
-  private async verifyValue(value: string, encryptedValue: string): Promise<boolean> {
-    return await bcrypt.compare(value, encryptedValue);
   }
 }
