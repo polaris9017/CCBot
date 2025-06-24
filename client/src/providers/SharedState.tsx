@@ -1,6 +1,14 @@
 'use client';
 
-import { createContext, ReactNode, useCallback, useContext, useState } from 'react';
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useState,
+  useMemo,
+  useTransition,
+} from 'react';
 import {
   CommandSettingItem,
   CustomCommandItem,
@@ -29,18 +37,20 @@ interface ContextType {
   setChatCustomDesignCode: (code: string) => void;
   isBotEnabled: boolean;
   setIsBotEnabled: (value: boolean) => void;
+  isPending: boolean;
 }
 
 const sharedStateContext = createContext<ContextType | undefined>(undefined);
 
 export function SharedStateContextProvider({ children }: { children: ReactNode }) {
+  const [isPending, startTransition] = useTransition();
   const { fetch } = useApi('/api/setting', {
     method: 'PATCH',
     manual: true,
   });
   const [menuItem, setMenuItem] = useState('');
   const [commandSettings, setCommandSettings] = useState<CommandSettingItem[]>([
-    { id: 'uptime', name: '!업타입 활성화', value: true },
+    { id: 'uptime', name: '!업타임 활성화', value: true },
     { id: 'memo', name: '!메모 활성화', value: true },
     { id: 'fixed', name: '!고정 활성화', value: true },
     { id: 'custom', name: '커스텀 명령어 사용', value: true },
@@ -73,68 +83,71 @@ export function SharedStateContextProvider({ children }: { children: ReactNode }
       const settings: DashboardSettings = (await response.json()).data;
       console.log(settings);
 
-      // 봇 활성화 상태 설정
-      if (settings.activateBot !== undefined) {
-        setIsBotEnabled(settings.activateBot);
-      }
-
-      // 커맨드 설정들 업데이트
-      setCommandSettings((prevSettings) =>
-        prevSettings.map((setting) => {
-          switch (setting.id) {
-            case 'uptime':
-              return { ...setting, value: settings.activateUptime ?? setting.value };
-            case 'memo':
-              return { ...setting, value: settings.activateMemo ?? setting.value };
-            case 'fixed':
-              return { ...setting, value: settings.activateFixedMessage ?? setting.value };
-            case 'custom':
-              return { ...setting, value: settings.activateCustomCommands ?? setting.value };
-            default:
-              return setting;
-          }
-        })
-      );
-
-      // 오버레이 활성화 상태 설정
-      if (settings.activateChatOverlay !== undefined) {
-        setIsChatOverlayActivated(settings.activateChatOverlay);
-      }
-
-      // 오버레이 디자인 설정
-      if (settings.chatOverlayDesign) {
-        const designOptions = [
-          { id: 1, name: '기본', value: 'default' },
-          { id: 2, name: '투명', value: 'transparent' },
-          { id: 3, name: '다크', value: 'dark' },
-          { id: 4, name: '커스텀', value: 'custom' },
-        ];
-
-        const selectedDesign = designOptions.find(
-          (option) => option.value === settings.chatOverlayDesign
-        );
-
-        if (selectedDesign) {
-          setOverlayDesign(selectedDesign);
+      // startTransition을 사용하여 상태 업데이트를 배치 처리
+      startTransition(() => {
+        // 봇 활성화 상태 설정
+        if (settings.activateBot !== undefined) {
+          setIsBotEnabled(settings.activateBot);
         }
-      }
 
-      // 커스텀 디자인 코드 설정
-      if (settings.chatCustomDesignCode) {
-        setChatCustomDesignCode(settings.chatCustomDesignCode);
-      }
-
-      // 커스텀 커맨드 설정
-      if (settings.customCommands) {
-        const commandsArray = Object.entries(settings.customCommands).map(
-          ([name, response], index) => ({
-            id: index + 1,
-            name,
-            response,
+        // 커맨드 설정들 업데이트
+        setCommandSettings((prevSettings) =>
+          prevSettings.map((setting) => {
+            switch (setting.id) {
+              case 'uptime':
+                return { ...setting, value: settings.activateUptime ?? setting.value };
+              case 'memo':
+                return { ...setting, value: settings.activateMemo ?? setting.value };
+              case 'fixed':
+                return { ...setting, value: settings.activateFixedMessage ?? setting.value };
+              case 'custom':
+                return { ...setting, value: settings.activateCustomCommands ?? setting.value };
+              default:
+                return setting;
+            }
           })
         );
-        setCustomCommands(commandsArray);
-      }
+
+        // 오버레이 활성화 상태 설정
+        if (settings.activateChatOverlay !== undefined) {
+          setIsChatOverlayActivated(settings.activateChatOverlay);
+        }
+
+        // 오버레이 디자인 설정
+        if (settings.chatOverlayDesign) {
+          const designOptions = [
+            { id: 1, name: '기본', value: 'default' },
+            { id: 2, name: '투명', value: 'transparent' },
+            { id: 3, name: '다크', value: 'dark' },
+            { id: 4, name: '커스텀', value: 'custom' },
+          ];
+
+          const selectedDesign = designOptions.find(
+            (option) => option.value === settings.chatOverlayDesign
+          );
+
+          if (selectedDesign) {
+            setOverlayDesign(selectedDesign);
+          }
+        }
+
+        // 커스텀 디자인 코드 설정
+        if (settings.chatCustomDesignCode) {
+          setChatCustomDesignCode(settings.chatCustomDesignCode);
+        }
+
+        // 커스텀 커맨드 설정
+        if (settings.customCommands) {
+          const commandsArray = Object.entries(settings.customCommands).map(
+            ([name, response], index) => ({
+              id: index + 1,
+              name,
+              response,
+            })
+          );
+          setCustomCommands(commandsArray);
+        }
+      });
 
       console.log('설정이 성공적으로 로드되었습니다.');
       return settings;
@@ -167,30 +180,49 @@ export function SharedStateContextProvider({ children }: { children: ReactNode }
     []
   );
 
-  return (
-    <sharedStateContext.Provider
-      value={{
-        menuItem,
-        fetch,
-        fetchSettings,
-        setMenuItem: handleSetMenuItem,
-        commandSettings,
-        setCommandSettings: handleSetCommandSettings,
-        customCommands,
-        setCustomCommands: handleSetCustomCommands,
-        isChatOverlayActivated,
-        setIsChatOverlayActivated: handleIsChatOverlayActivated,
-        overlayDesign,
-        setOverlayDesign: handleSetOverlayDesign,
-        chatCustomDesignCode,
-        setChatCustomDesignCode: handleSetChatCustomDesignCode,
-        isBotEnabled,
-        setIsBotEnabled: handleSetIsBotEnabled,
-      }}
-    >
-      {children}
-    </sharedStateContext.Provider>
+  // Context value를 useMemo로 메모이제이션
+  const contextValue = useMemo(
+    () => ({
+      menuItem,
+      fetch,
+      fetchSettings,
+      setMenuItem: handleSetMenuItem,
+      commandSettings,
+      setCommandSettings: handleSetCommandSettings,
+      customCommands,
+      setCustomCommands: handleSetCustomCommands,
+      isChatOverlayActivated,
+      setIsChatOverlayActivated: handleIsChatOverlayActivated,
+      overlayDesign,
+      setOverlayDesign: handleSetOverlayDesign,
+      chatCustomDesignCode,
+      setChatCustomDesignCode: handleSetChatCustomDesignCode,
+      isBotEnabled,
+      setIsBotEnabled: handleSetIsBotEnabled,
+      isPending,
+    }),
+    [
+      menuItem,
+      fetch,
+      fetchSettings,
+      handleSetMenuItem,
+      commandSettings,
+      handleSetCommandSettings,
+      customCommands,
+      handleSetCustomCommands,
+      isChatOverlayActivated,
+      handleIsChatOverlayActivated,
+      overlayDesign,
+      handleSetOverlayDesign,
+      chatCustomDesignCode,
+      handleSetChatCustomDesignCode,
+      isBotEnabled,
+      handleSetIsBotEnabled,
+      isPending,
+    ]
   );
+
+  return <sharedStateContext.Provider value={contextValue}>{children}</sharedStateContext.Provider>;
 }
 
 export function useSharedState() {
