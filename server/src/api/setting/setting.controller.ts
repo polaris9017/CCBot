@@ -16,7 +16,6 @@ import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { UserService } from '../user/user.service';
 import { Response } from 'express';
 import { JwtGuard } from '../auth/guard/jwt.guard';
-import * as crypto from 'src/common/utils/crypto';
 
 @Controller('setting')
 export class SettingController {
@@ -34,7 +33,7 @@ export class SettingController {
     @Res() res: Response
   ) {
     const { settings } = createSettingDto;
-    const uid = crypto.generateUserId(currentUser.naverUid);
+    const uid = currentUser.uid;
     const user = await this.userService.findUserByUID(uid);
 
     if (!user) {
@@ -49,7 +48,7 @@ export class SettingController {
   @Get()
   @UseGuards(JwtGuard)
   async find(@CurrentUser() currentUser: any, @Res() res: Response) {
-    const uid = crypto.generateUserId(currentUser.naverUid);
+    const uid = currentUser.uid;
     const setting = await this.settingService.findSetting(uid);
 
     if (!setting) {
@@ -65,7 +64,7 @@ export class SettingController {
   @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async update(@CurrentUser() currentUser: any, @Body() updateSettingDto: UpdateSettingDto) {
-    const uid = crypto.generateUserId(currentUser.naverUid);
+    const uid = currentUser.uid;
     return await this.settingService.updateSetting(uid, updateSettingDto);
   }
 }

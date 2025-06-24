@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
 
 export async function encryptValue(value: string, rounds: number = 10): Promise<string> {

@@ -27,11 +27,8 @@ export class AuthService {
     const uid = crypto.generateUserId(naverUid);
 
     let user = await this.userService.findUserByUID(uid);
-    if (!(await crypto.verifyValue(naverUid, user?.naverUid!))) {
-      throw new UnauthorizedException({ message: 'fail - Invalid user credentials' });
-    }
 
-    if (!user) {
+    if (!user || !(await crypto.verifyValue(naverUid, user.naverUid ?? ''))) {
       await this.userService.createUser(loginUserDto as CreateUserDto);
       user = await this.userService.findUserByUID(uid);
       await this.settingService.createSetting({ uid: uid });
